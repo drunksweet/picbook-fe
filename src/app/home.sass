@@ -6,6 +6,7 @@
     box-sizing: border-box
     background-color: #f0f0f0
     color: #333
+    gap: 1rem
     font-family: 'Arial', sans-serif
     font-size: 1.5rem
 
@@ -13,11 +14,13 @@
     .home-right
         display: flex
         flex-direction: column
+        box-sizing: border-box
         height: 100%
 
     .home-left
         width: 70%
-        background: red
+        gap: 1rem
+        background: transparent
 
     .home-right
         width: 30%
@@ -28,19 +31,34 @@
     display: flex
     overflow: hidden
     justify-content: center
-    height: 15%
+    height: 18%
     background: green
 
 .data_show
     display: flex
-    flex-direction: column
     justify-content: center
-    height: 35%
+    height: 32%
     background: yellow
+    gap: 0.5rem
+
+    // .data_show_left,
+    // .data_show_right
+    //     margin: 1rem
+
+    .data_show_left
+        height: 100%
+        width: 70%
+        background: black
+
+    .data_show_right
+        height: 100%
+        width: 30%
+        background: white
+
 
 .line_chart
     display: flex
     flex-direction: column
     justify-content: center
-    height: 45%
+    height: 50%
     background: pink

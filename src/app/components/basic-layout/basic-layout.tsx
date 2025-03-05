@@ -7,6 +7,9 @@ import {
   BookOutlined,
   ShoppingCartOutlined,
   GiftOutlined,
+  CrownOutlined,
+  ReconciliationOutlined,
+  ContactsOutlined,
 } from "@ant-design/icons";
 import type { MenuProps } from "antd";
 import { Breadcrumb, Layout, Menu, theme } from "antd";
@@ -23,6 +26,9 @@ const routeMap: { [key: string]: string } = {
   "3-1": "/books/borrow",
   "3-2": "/books/donate",
   "3-3": "/books/sell",
+  "4": "/vip",
+  "5": "activity",
+  "6": "volunteer",
 };
 
 // 更新后的菜单项配置
@@ -59,6 +65,21 @@ const items2: MenuProps["items"] = [
       },
     ],
   },
+  {
+    key: "4",
+    icon: <CrownOutlined />,
+    label: "会员管理",
+  },
+  {
+    key: "5",
+    icon: <ReconciliationOutlined />,
+    label: "活动管理",
+  },
+  {
+    key: "6",
+    icon: <ContactsOutlined />,
+    label: "志愿者管理",
+  },
 ];
 
 export function AntdLayout({ children }: { children: React.ReactNode }) {
@@ -85,7 +106,7 @@ export function AntdLayout({ children }: { children: React.ReactNode }) {
             lightSiderBg: "#fbd39e",
           },
           Menu: {
-            fontSize: 16,
+            fontSize: 14,
             groupTitleColor: "#b8741a", // 分组标题颜色
             subMenuItemBg: "#fbd39e", // 子菜单项背景
             itemBg: "#fbd39e", // 菜单项背景
@@ -119,7 +140,7 @@ export function AntdLayout({ children }: { children: React.ReactNode }) {
               borderRadius: borderRadiusLG,
             }}
           >
-            <Sider style={{ background: "#fdead0" }} width={200} theme="light">
+            <Sider style={{ background: "#fdead0" }} width={160} theme="light">
               <Menu
                 mode="inline"
                 defaultSelectedKeys={["1"]}
