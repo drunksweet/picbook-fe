@@ -10,22 +10,26 @@
     font-family: 'Arial', sans-serif
     font-size: 1.5rem
 
-    .home-left,
-    .home-right
+    .home_left,
+    .home_right
         display: flex
         flex-direction: column
         box-sizing: border-box
         height: 100%
 
-    .home-left
+    .home_left
         width: 70%
         gap: 1rem
         background: transparent
 
-    .home-right
+        > div
+            border-radius: 8px
+
+    .home_right
         width: 30%
-        background: blue
-        padding: 20px
+        background: #FACD91
+        padding: 0.5rem
+        border-radius: 8px
 
 .button_container
     display: flex
@@ -33,7 +37,7 @@
     overflow: hidden
     justify-content: start
     height: 18%
-    background: #FACD91
+    background: #F8D6A9
 
     .button_group
         // box-sizing: border-box
@@ -43,7 +47,6 @@
         justify-content: center
         gap: 0.5rem
         padding: 0rem 0.5rem 1rem 0.5rem
-
 
 .data_show
     display: flex
@@ -68,9 +71,31 @@
         width: 30%
         background: white
 
-.line_chart
+.left_third
     display: flex
     flex-direction: column
     justify-content: center
     height: 50%
-    background: pink
+    background: #F8D6A9
+    padding: 0.5rem
+
+    .plot
+        height: 100%
+        background: white
+
+        .plot_title
+            color: #7B4D12
+
+.title_container
+    display: flex
+
+    .title
+        font-size: 1.5rem
+        color: #7B4D12
+
+.scrollview_msg
+    flex: 1
+    border-radius: 8px
+    height: 100%
+    background: #b7b2ac
+    

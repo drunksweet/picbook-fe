@@ -150,7 +150,7 @@ export function AntdLayout({ children }: { children: React.ReactNode }) {
                 onClick={handleMenuClick}
               />
             </Sider>
-            <Content style={{ padding: "1rem 1.5rem", minHeight: 280 ,backgroundColor: "#efefef" }}>
+            <Content style={{ padding: "1rem 1.5rem 5rem 1.5rem", minHeight: 280 ,backgroundColor: "#efefef" }}>
               {children}
             </Content>
           </Layout>
