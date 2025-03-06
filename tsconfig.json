@@ -18,8 +18,10 @@
         "name": "next"
       }
     ],
+    "baseUrl": ".",      // 基准目录
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/app/*"],
+      "@components/*": ["./src/app/components/*"],
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
