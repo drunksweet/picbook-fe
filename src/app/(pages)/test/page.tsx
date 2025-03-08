@@ -1,5 +1,7 @@
 import EChartsPie from "@components/echarts/pie"
 import EChartsBar from "@/components/echarts/bar"
+import Dashboard from "@/components/dashboard/dashboard"
+import InventoryManagement from "@/components/InventoryManagement/InventoryManagement"
 
 export default function TestPage() {
   // 这些数据可以从API获取或其他来源
@@ -15,7 +17,7 @@ export default function TestPage() {
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">ECharts 示例</h1>
       <div className="bg-white p-4 rounded-lg shadow">
-        <EChartsPie data={pieData} />
+        <InventoryManagement />
       </div>
     </div>
   )

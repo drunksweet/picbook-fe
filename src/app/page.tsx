@@ -7,6 +7,7 @@ import EChartsPlot from "@/components/echarts/plot";
 import ScrollView from "@/components/scrollview/scrollview";
 import { color } from "echarts";
 import { useRouter } from "next/navigation";
+import Dashboard from "@/components/dashboard/dashboard"
 
 const pieData = [
   { value: 1048, name: "儿童绘本" },
@@ -136,7 +137,9 @@ const Home = () => {
         </div>
 
         <div className="data_show left_second">
-          <div className="data_show_left data_grid">left</div>
+          <div className="data_show_left data_grid">
+            <Dashboard />
+          </div>
           <div className="data_show_right pie_chart">
             <EChartsPie data={pieData} />
           </div>
