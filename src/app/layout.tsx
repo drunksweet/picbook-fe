@@ -1,20 +1,19 @@
 import type React from "react";
 import type { Metadata } from "next";
-import { Geist, Azeret_Mono as Geist_Mono } from "next/font/google"; 
-import "./globals.css";
+import { Geist, Azeret_Mono as Geist_Mono } from "next/font/google";
+import "./globals.sass";
 import { AntdLayout } from "./components/basic-layout/basic-layout";
-
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
-  display: "swap"
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
-  display: "swap"
+  display: "swap",
 });
 
 export const metadata: Metadata = {

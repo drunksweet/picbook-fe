@@ -1,6 +1,7 @@
 // app/inventory/page.tsx
 "use client";
 
+import Banner from "@/components/banner";
 import React from "react";
 
 export default function InventoryPage() {
@@ -11,8 +12,6 @@ export default function InventoryPage() {
   };
 
   return (
-    <div style={{ padding: 24 }}>
-      绘本售卖
-    </div>
+    <Banner title="绘本管理-绘本售卖"/>
   );
 }

@@ -15,7 +15,7 @@ import type { MenuProps } from "antd";
 import { Breadcrumb, Layout, Menu, theme } from "antd";
 import { ConfigProvider } from "antd";
 import { useRouter } from "next/navigation";
-import "./basic-layout.scss";
+import "./basic-layout.sass";
 
 const { Header, Content, Footer, Sider } = Layout;
 

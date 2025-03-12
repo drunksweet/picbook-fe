@@ -1,6 +1,7 @@
 // app/inventory/page.tsx
 "use client";
 
+import Banner from "@/components/banner";
 import React from "react";
 
 
@@ -12,8 +13,6 @@ export default function BookBorrowPage() {
   };
 
   return (
-    <div style={{ padding: 24 }}>
-      绘本借阅
-    </div>
+    <Banner title="绘本管理-绘本借阅"/>
   );
 }
