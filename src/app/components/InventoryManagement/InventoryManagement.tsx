@@ -1,6 +1,7 @@
 "use client";
 
-import type React from "react";
+import "./InventoryManagement.sass";
+import { useState } from "react";
 
 import {
   Button,
@@ -8,11 +9,10 @@ import {
   Form,
   Input,
   Select,
-  Table,
   DatePicker,
   Space,
   Pagination,
-  Flex,
+  ConfigProvider,
 } from "antd";
 import {
   SearchOutlined,
@@ -21,9 +21,11 @@ import {
   UploadOutlined,
   DownloadOutlined,
   PrinterOutlined,
-  ThunderboltOutlined 
+  ThunderboltOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
+import Spacer from "../common/Spacer/spacer";
+import TangTable from "../TangTable/TangTable";
 
 interface InventoryItem {
   key: string;
@@ -34,7 +36,7 @@ interface InventoryItem {
   publisher: string;
   category: string;
   quantity: number;
-  status: "充足" | "预室" | "短暂" | "短缺";
+  status: "充足" | "预警" | "短缺";
   location: string;
   storageTime: string;
 }
@@ -43,12 +45,16 @@ export default function InventoryManagement() {
   // 表单处理
   const [form] = Form.useForm();
 
+  // // 分页状态
+  // const [data, setData] = useState<InventoryItem[]>([]);
+  // const [currentPage, setCurrentPage] = useState(1);
+  // const [pageSize, setPageSize] = useState(10);
+
   // 状态颜色映射
   const statusColorMap: Record<InventoryItem["status"], string> = {
     充足: "#52c41a",
-    预室: "#faad14",
-    短暂: "#ff7875",
-    短缺: "#f5222d",
+    预警: "#faad14",
+    短缺: "#ff7875",
   };
 
   // 表格列配置
@@ -84,101 +90,157 @@ export default function InventoryManagement() {
     },
   ];
 
-  // 模拟数据
-  const dataSource: InventoryItem[] = [
-    // 根据图片中的数据填充，此处示例第一条
-    {
-      key: "1",
-      index: 1,
-      bookId: "20230201",
-      title: "绘本1",
-      author: "作者1",
-      publisher: "出版社1",
-      category: "儿童故事",
-      quantity: 100,
-      status: "充足",
-      location: "A区1号架",
-      storageTime: "2025-01-01",
-    },
-    // 其他数据...
-  ];
+  // 模拟数据 - 创建更多数据来测试分页
+  const generateData = () => {
+    const data: InventoryItem[] = [];
+    for (let i = 1; i <= 300; i++) {
+      data.push({
+        key: i.toString(),
+        index: i,
+        bookId: `2023${i.toString().padStart(4, "0")}`,
+        title: `绘本${i}`,
+        author: `作者${(i % 10) + 1}`,
+        publisher: `出版社${(i % 5) + 1}`,
+        category: i % 2 === 0 ? "儿童故事" : "科普知识",
+        quantity: Math.floor(Math.random() * 200) + 1,
+        status: i % 3 === 0 ? "充足" : i % 3 === 1 ? "预警" : "短缺",
+        location: `${String.fromCharCode(65 + (i % 5))}区${(i % 10) + 1}号架`,
+        storageTime: `2025-${(i % 12) + 1}-${(i % 28) + 1}`,
+      });
+    }
+    return data;
+  };
+
+  const dataSource = generateData();
+
+  // // 计算当前页的数据
+  // const currentData = dataSource.slice(
+  //   (currentPage - 1) * pageSize,
+  //   currentPage * pageSize
+  // );
+
+  // // Handle pagination change
+  // const handlePageChange = (page: number, size: number) => {
+  //   // console.log(`Page changed to ${page}, size changed to ${size}`);
+  //   setCurrentPage(page);
+  //   setPageSize(size);
+  // };
 
   return (
-    <div className="inventory-container" style={{ padding: 20 }}>
-      <Card title="信息检索" bordered={false}>
-        <Form form={form} layout="inline">
-          <Form.Item label="绘本编号" name="bookId">
-            <Input placeholder="请输入" />
-          </Form.Item>
-          <Form.Item label="绘本名称" name="title">
-            <Input placeholder="请输入" />
-          </Form.Item>
-          <Form.Item label="绘本类别" name="category">
-            <Select
-              style={{ width: 120 }}
-              options={[
-                { value: "儿童故事", label: "儿童故事" },
-                { value: "科普知识", label: "科普知识" },
-              ]}
+    <ConfigProvider
+      theme={{
+        token: {
+          colorPrimary: "#F59A23",
+          colorLink: "#F59A23",
+        },
+      }}
+    >
+      <div className="inventory-container" style={{ paddingTop: "10px" }}>
+        <Card title="信息检索" bordered={false}>
+          <Form form={form} layout="inline">
+            <Space size={"large"}>
+              <Form.Item label="绘本编号" name="bookId">
+                <Input placeholder="请输入" />
+              </Form.Item>
+              <Form.Item label="绘本名称" name="title">
+                <Input placeholder="请输入" />
+              </Form.Item>
+              <Form.Item label="绘本类别" name="category">
+                <Select
+                  style={{ width: 120 }}
+                  options={[
+                    { value: "儿童故事", label: "儿童故事" },
+                    { value: "科普知识", label: "科普知识" },
+                  ]}
+                />
+              </Form.Item>
+              <Form.Item label="作者" name="author">
+                <Input placeholder="请输入" />
+              </Form.Item>
+              <Form.Item label="入库时间" name="storageTime">
+                <DatePicker />
+              </Form.Item>
+            </Space>
+
+            <Form.Item style={{ marginLeft: "auto" }}>
+              <Space size={"large"}>
+                <Button type="primary" icon={<RedoOutlined />}>
+                  重置
+                </Button>
+                <Button
+                  type="primary"
+                  icon={<SearchOutlined />}
+                  style={{ marginLeft: 8 }}
+                >
+                  搜索
+                </Button>
+              </Space>
+            </Form.Item>
+          </Form>
+        </Card>
+
+        <div className="main-container">
+          {/* button block */}
+          <div style={{ padding: 10 }}>
+            <div className="btn-container">
+              <Button type="primary" icon={<PlusOutlined />}>
+                新增库存记录
+              </Button>
+              <Button type="primary" icon={<UploadOutlined />}>
+                批量导入
+              </Button>
+              <Button type="primary" icon={<DownloadOutlined />}>
+                导出库存报表
+              </Button>
+              <Spacer />
+              <Button type="primary" icon={<ThunderboltOutlined />}>
+                快速操作
+              </Button>
+              <Button type="primary" icon={<PrinterOutlined />}>
+                打印
+              </Button>
+            </div>
+          </div>
+
+          <div className="table-container">
+            <TangTable
+              columns={columns}
+              // dataSource={currentData}
+              dataSource={dataSource}
+              // currentPage={currentPage}
+              total = {dataSource.length}
+              // pageSize={pageSize}
+              // onPageChange={handlePageChange}
+              scroll={{ y: 500 }}
             />
-          </Form.Item>
-          <Form.Item label="作者" name="author">
-            <Input placeholder="请输入" />
-          </Form.Item>
-          <Form.Item label="入库时间" name="storageTime">
-            <DatePicker />
-          </Form.Item>
-          <Form.Item>
-            <Button icon={<RedoOutlined />}>重置</Button>
-            <Button
-              type="primary"
-              icon={<SearchOutlined />}
-              style={{ marginLeft: 8 }}
+
+            {/* <div
+              className="pagination"
+              style={{ marginTop: 0, padding: "10px 16px" }}
             >
-              搜索
-            </Button>
-          </Form.Item>
-        </Form>
-      </Card>
-
-      <div style={{ marginTop: 20 }}>
-        <div
-          style={{
-            background: "#FACD91",
-            display: "flex",
-            alignItems: "center",
-            boxSizing: 'border-box',
-            padding: '0.5rem 1.5rem',
-            gap: '10px'
-          }}
-        >
-          <Button type="primary" icon={<PlusOutlined />}>
-            新增库存记录
-          </Button>
-          <Button icon={<UploadOutlined />}>批量导入</Button>
-          <Button icon={<DownloadOutlined />}>导出库存报表</Button>
-          <div style={{flex: 1}}></div>
-          <Button icon={<ThunderboltOutlined />}>快速操作</Button>
-          <Button icon={<PrinterOutlined />}>打印</Button>
-        </div>
-
-        <Table
-          bordered
-          columns={columns}
-          dataSource={dataSource}
-          pagination={false}
-          rowClassName={() => "inventory-row"}
-        />
-
-        <div style={{ marginTop: 20, textAlign: "right" }}>
-          <Pagination
-            total={50}
-            showSizeChanger
-            showQuickJumper
-            showTotal={(total) => `共 ${total} 条`}
-          />
+              <Pagination
+                align="center"
+                current={currentPage}
+                defaultCurrent={1}
+                pageSize={pageSize}
+                total={dataSource.length}
+                showSizeChanger
+                showQuickJumper
+                size="small"
+                showTotal={(total) => `共 ${total} 条`}
+                onChange={(page, size) => {
+                  setCurrentPage(page);
+                  if (size) setPageSize(size);
+                }}
+                onShowSizeChange={(current, size) => {
+                  setCurrentPage(1);
+                  setPageSize(size);
+                }}
+              />
+            </div> */}
+          </div>
         </div>
       </div>
-    </div>
+    </ConfigProvider>
   );
 }
