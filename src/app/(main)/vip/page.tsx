@@ -2,13 +2,11 @@
 "use client";
 
 import React from "react";
-
+import Banner from "@/components/banner";
 
 export default function VipPage() {
 
   return (
-    <div style={{ padding: 24 }}>
-      会员管理
-    </div>
+    <Banner title="会员管理"/>
   );
 }

@@ -209,9 +209,9 @@ export default function InventoryManagement() {
               dataSource={dataSource}
               // currentPage={currentPage}
               total = {dataSource.length}
-              // pageSize={pageSize}
+              pageSize={15}
               // onPageChange={handlePageChange}
-              scroll={{ y: 500 }}
+              scroll={{ y: 50 * 15 }}
             />
 
             {/* <div

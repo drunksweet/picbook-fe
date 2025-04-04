@@ -1,0 +1,141 @@
+.book-donation-container {
+    font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    
+    .page-content {
+      padding: 12px 0px;
+    }
+
+    .donation-form-section {
+        background-color: white;
+    }
+    
+    .section-header {
+      margin-bottom: 16px;
+      border-bottom: 1px solid #f0f0f0;
+      padding-bottom: 8px;
+      
+      h2 {
+        font-size: 16px;
+        color: #d48806;
+        margin: 0;
+        font-weight: normal;
+      }
+      
+      h3 {
+        font-size: 14px;
+        color: #333;
+        margin: 0;
+        font-weight: normal;
+      }
+    }
+    
+    .book-info-header {
+      margin-top: 24px;
+    }
+    
+    .upload-section {
+      margin-top: 24px;
+      margin-bottom: 24px;
+    }
+    
+    .add-to-library {
+      text-align: center;
+      margin: 24px 0;
+      
+      .add-library-btn {
+        background-color: #ffa940;
+        border-color: #ffa940;
+        
+        &:hover {
+          background-color: #fa8c16;
+          border-color: #fa8c16;
+        }
+      }
+    }
+    
+    .donation-value-section {
+      margin-top: 24px;
+      
+      .gift-icon {
+        display: flex;
+        align-items: center;
+        
+        .icon {
+          margin-right: 8px;
+          font-size: 18px;
+        }
+      }
+      
+      .form-buttons {
+        display: flex;
+        justify-content: center;
+        margin-top: 24px;
+        
+        .confirm-btn {
+          background-color: #ffa940;
+          border-color: #ffa940;
+          margin-right: 16px;
+          
+          &:hover {
+            background-color: #fa8c16;
+            border-color: #fa8c16;
+          }
+        }
+      }
+    }
+    
+    .donation-info-section {
+      .info-card {
+        margin-bottom: 24px;
+      }
+      
+      .info-header, .ranking-header {
+        display: flex;
+        align-items: center;
+        color: #d48806;
+        
+        .info-icon, .trophy-icon {
+          margin-right: 8px;
+          font-size: 20px;
+          color: #ffa940;
+        }
+      }
+      
+      .action-buttons {
+        display: flex;
+        margin-bottom: 16px;
+        
+        .report-btn, .quick-btn {
+          background-color: #ffa940;
+          border-color: #ffa940;
+          
+          &:hover {
+            background-color: #fa8c16;
+            border-color: #fa8c16;
+          }
+        }
+        
+        .reload-btn {
+          margin: 0 16px;
+        }
+      }
+      
+      .donation-table, .ranking-table {
+        .ant-table-thead > tr > th {
+          background-color: #fafafa;
+        }
+      }
+      
+      .detail-link {
+        color: #ffa940;
+      }
+      
+      .pagination-container {
+        margin-top: 16px;
+        display: flex;
+        justify-content: flex-end;
+      }
+    }
+  }
+  
+  

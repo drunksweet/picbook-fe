@@ -5,7 +5,6 @@ import { Button, ConfigProvider } from "antd";
 import EChartsPie from "@components/echarts/pie";
 import EChartsPlot from "@/components/echarts/plot";
 import ScrollView from "@/components/scrollview/scrollview";
-import { color } from "echarts";
 import { useRouter } from "next/navigation";
 import Dashboard from "@/components/dashboard/dashboard"
 
@@ -85,7 +84,7 @@ const Home = () => {
     display: "flex",
     flexDirection: "column" as const,
     alignItems: "center",
-    width: "15%",
+    width: "16%",
     height: "100%",
     color: "black",
     fontSize: "12px",
@@ -161,6 +160,7 @@ const Home = () => {
             src="/home/message.svg"
             width={"70px"}
             style={{position:"relative", top:"-10px", left:"-10px"}}
+            alt="Message Icon"
           ></img>
           <div className="title" style={{position:"relative", top:"10px", left:"-15px"}}>消息通知</div>  
         </div>

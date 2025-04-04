@@ -2,13 +2,11 @@
 "use client";
 
 import React from "react";
-
+import Banner from "@/components/banner";
 
 export default function VolunteerPage() {
 
   return (
-    <div style={{ padding: 24 }}>
-      志愿者管理
-    </div>
+    <Banner title="志愿管理"/>
   );
 }

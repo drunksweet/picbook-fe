@@ -2,13 +2,12 @@
 "use client";
 
 import React from "react";
-
+import Banner from "@/components/banner";
 
 export default function ActivityPage() {
 
   return (
-    <div style={{ padding: 24 }}>
-      活动管理
-    </div>
+    <Banner title="活动管理"/>
+
   );
 }

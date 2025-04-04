@@ -70,7 +70,7 @@ export default function TangTable<T extends object = any>({
 
   // Use either external or internal pagination values
   const currentPage = isControlled ? externalCurrentPage : internalCurrentPage;
-  const pageSize = isControlled ? externalPageSize : internalPageSize;
+  const pageSize =  externalPageSize? externalPageSize: internalPageSize;
 
   const currentData = dataSource.slice(
     (currentPage - 1) * pageSize,

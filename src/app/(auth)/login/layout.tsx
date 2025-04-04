@@ -1,7 +1,6 @@
 import type React from "react"
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
-import "./globals.sass"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,11 +15,10 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "Picture Book App",
-  description: "A picture book app",
+  title: "登录 - Picture Book App",
 }
 
-export default function RootLayout({
+export default function LoginLayout({
   children,
 }: {
   children: React.ReactNode

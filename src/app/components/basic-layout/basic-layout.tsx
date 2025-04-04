@@ -25,7 +25,6 @@ const routeMap: { [key: string]: string } = {
   "2": "/inventory",
   "3-1": "/books/borrow",
   "3-2": "/books/donate",
-  "3-3": "/books/sell",
   "4": "/vip",
   "5": "activity",
   "6": "volunteer",
@@ -58,11 +57,6 @@ const items2: MenuProps["items"] = [
         icon: <GiftOutlined />,
         label: "绘本捐赠",
       },
-      {
-        key: "3-3",
-        icon: <ShoppingCartOutlined />,
-        label: "绘本售卖",
-      },
     ],
   },
   {
@@ -78,7 +72,7 @@ const items2: MenuProps["items"] = [
   {
     key: "6",
     icon: <ContactsOutlined />,
-    label: "志愿者管理",
+    label: "志愿管理",
   },
 ];
 
@@ -150,7 +144,7 @@ export function AntdLayout({ children }: { children: React.ReactNode }) {
                 onClick={handleMenuClick}
               />
             </Sider>
-            <Content style={{ padding: "1rem 1.5rem 5rem 1.5rem", minHeight: 280 ,backgroundColor: "#efefef" }}>
+            <Content style={{ padding: "1rem 1.5rem 5rem 1.5rem", minHeight: 280 , backgroundColor: "#efefef" }}>
               {children}
             </Content>
           </Layout>
