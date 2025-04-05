@@ -1,24 +1,48 @@
-"use client"
+"use client";
 
-import type React from "react"
+import { useState } from "react";
+import { Form, Input, Button, Typography, Flex } from "antd";
+import {
+  UserOutlined,
+  LockOutlined,
+  EyeOutlined,
+  EyeInvisibleOutlined,
+  SafetyCertificateOutlined,
+} from "@ant-design/icons";
+import "./login-form.scss";
+import { login } from "src/lib/auth";
 
-import { useState } from "react"
-import { User, Lock, Eye, EyeOff, Shield } from "lucide-react"
-import styles from "./login-form.module.scss"
-import { login } from "src/lib/auth"
+const { Title, Text } = Typography;
 
-export default function LoginForm({ onSuccess }: { onSuccess: () => void }) {
-  const [showPassword, setShowPassword] = useState(false)
-  const [username, setUsername] = useState("")
-  const [password, setPassword] = useState("")
-  const [verificationCode, setVerificationCode] = useState("")
+interface LoginFormProps {
+  onSuccess: () => void;
+  verificationImg: string;
+  verificationCodeId: string;
+  refreshCaptcha: () => void;
+}
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+export default function LoginForm({
+  onSuccess,
+  verificationImg,
+  verificationCodeId,
+  refreshCaptcha,
+}: LoginFormProps) {
+  const [showPassword, setShowPassword] = useState(false);
+  const [form] = Form.useForm();
+
+  const handleTest = () => {
+    console.log("test");
+  };
+
+  const handleSubmit = async (values: {
+    userId: string;
+    password: string;
+    verificationCode: string;
+  }) => {
     try {
-      // 这里添加实际的登录逻辑
-      const success = await login(username, password, verificationCode);
+      const success = await login({ ...values, verificationCodeId });
       if (success) {
+        console.log("onSuccess")
         onSuccess();
       }
     } catch (error) {
@@ -27,66 +51,85 @@ export default function LoginForm({ onSuccess }: { onSuccess: () => void }) {
   };
 
   return (
-    <div className={styles.formContainer}>
-      <h1 className={styles.title}>
-        "爱孩子的书" <span className={styles.subtitle}>绘本馆</span>
+    <div className="formContainer">
+      <h1 className="title">
+        "爱孩子的书" <span className="subtitle">绘本馆</span>
       </h1>
 
-      <form className={styles.form} onSubmit={handleSubmit}>
-        <div className={styles.inputGroup}>
-          <User className={styles.icon} size={20} />
-          <input
-            type="text"
+      <Form
+        form={form}
+        className="form"
+        onFinish={handleSubmit}
+        layout="vertical"
+        size="large"
+      >
+        <Form.Item
+          name="userId"
+          rules={[{ required: true, message: "请输入用户名" }]}
+        >
+          <Input
+            className="input"
+            prefix={<UserOutlined className="icon" />}
             placeholder="用户名"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            className={styles.input}
-            required
           />
-        </div>
+        </Form.Item>
 
-        <div className={styles.inputGroup}>
-          <Lock className={styles.icon} size={20} />
-          <input
+        <Form.Item
+          name="password"
+          rules={[{ required: true, message: "请输入密码" }]}
+        >
+          <Input
+            className="input"
+            prefix={<LockOutlined className="icon" />}
             type={showPassword ? "text" : "password"}
             placeholder="密码"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className={styles.input}
-            required
+            suffix={
+              <Button
+                type="text"
+                className="toggleButton"
+                onClick={() => setShowPassword(!showPassword)}
+                icon={showPassword ? <EyeInvisibleOutlined /> : <EyeOutlined />}
+              />
+            }
           />
-          <button
-            type="button"
-            className={styles.toggleButton}
-            onClick={() => setShowPassword(!showPassword)}
-            aria-label={showPassword ? "隐藏密码" : "显示密码"}
-          >
-            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-          </button>
-        </div>
+        </Form.Item>
 
-        <div className={styles.inputGroup}>
-          <Shield className={styles.icon} size={20} />
-          <input
-            type="text"
+        <Form.Item
+          name="verificationCode"
+          rules={[{ required: true, message: "请输入验证码" }]}
+        >
+          <Input
+            className="input"
+            prefix={<SafetyCertificateOutlined className="icon" />}
             placeholder="验证码"
-            value={verificationCode}
-            onChange={(e) => setVerificationCode(e.target.value)}
-            className={styles.input}
-            required
+            suffix={
+              <div className="captcha">
+                <img
+                  className="captchaImg"
+                  src={verificationImg}
+                  alt="验证码"
+                  onClick={refreshCaptcha}
+                />
+              </div>
+            }
           />
-          <div className={styles.captcha}>b c 4 e</div>
-        </div>
+        </Form.Item>
 
-        <button type="submit" className={styles.loginButton}>
-          登 录
-        </button>
+        <Form.Item style={{ paddingTop: "30px" }}>
+          <Button
+            type="primary"
+            htmlType="submit"
+            className="loginButton"
+            block
+          >
+            登 录
+          </Button>
+        </Form.Item>
 
-        <div className={styles.forgotPassword}>
+        <div className="forgotPassword">
           <a href="#">忘记密码?</a>
         </div>
-      </form>
+      </Form>
     </div>
-  )
+  );
 }
-
