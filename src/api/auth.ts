@@ -1,4 +1,4 @@
-import axios from "@/lib/axios";
+import axios from "src/api/axios";
 interface LoginProps {
   userId: string;
   password: string;
@@ -20,13 +20,6 @@ export async function login({
   verificationCode,
   verificationCodeId,
 }: LoginProps) {
-  console.log("1111111");
-  console.log({
-    user_id: userId,
-    password,
-    verification_code: verificationCode,
-    verification_code_id: verificationCodeId,
-  });
   try {
     const response = await axios.post(
       "/v1/auth/login",
@@ -42,12 +35,18 @@ export async function login({
         },
       }
     );
-    console.log("222222");
-    console.log("Login response:", response.data);
-    if (response.data.success) {
+    if (
+      response.data &&
+      (response.data.success === true ||
+        response.data.code === 200 ||
+        response.data.status === "success")
+    ) {
       // 确保在浏览器环境中才使用localStorage
       if (typeof window !== "undefined") {
-        localStorage.setItem("authToken", response.data.token);
+        localStorage.setItem(
+          "authToken",
+          response.data.token || response.data.data?.token || ""
+        );
       }
       return true;
     }

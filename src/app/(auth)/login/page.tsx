@@ -4,8 +4,8 @@ import LoginForm from "@/components/login-form/login-form";
 import styles from "./page.module.scss";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { isLoggedIn } from "@/lib/auth"; // 假设有这个工具函数
-import axios from "@/lib/axios";
+import { isLoggedIn } from "src/api/auth"; // 假设有这个工具函数
+import axios from "src/api/axios";
 
 interface CaptchaResponse {
   code: number;
@@ -42,12 +42,12 @@ export default function LoginPage() {
     fetchCaptcha(); // 首次加载验证码
   }, []);
 
-  // useEffect(() => {
-  //   // 如果已登录，直接跳转到首页
-  //   if (isLoggedIn()) {
-  //     router.push("/");
-  //   }
-  // }, []);
+  useEffect(() => {
+    // 如果已登录，直接跳转到首页
+    if (isLoggedIn()) {
+      router.push("/");
+    }
+  }, []);
 
   const handleLoginSuccess = () => {
     router.push("/");

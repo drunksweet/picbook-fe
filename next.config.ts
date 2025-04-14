@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
   },
 
   async rewrites() {
+    console.log("rewrites applied"); // 👈 这个要在重启时能看到
     return [
       {
         source: "/api/:path*", // 匹配以 /api 开头的请求

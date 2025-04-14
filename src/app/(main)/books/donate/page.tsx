@@ -337,7 +337,7 @@ export default function BookDonation() {
       <Banner title="绘本管理-绘本捐赠" />
       <div className="book-donation-container">
         <div className="page-content">
-          <Row gutter={[24, 8]}>
+          <Row gutter={[12, 16]}>
             <Col span={12}>
               <Card>
                 <div className="donation-form-section">
@@ -366,7 +366,7 @@ export default function BookDonation() {
                     </Form>
                   </Card>
 
-                  <Card>
+                  <Card style={{ marginTop: "8px" }}>
                     <div className="section-header book-info-header">
                       <h2>绘本信息</h2>
                     </div>
@@ -419,7 +419,7 @@ export default function BookDonation() {
                     </div>
                   </Card>
 
-                  <Card>
+                  <Card style={{ marginTop: "8px" }}>
                     <div className="donation-value-section">
                       <div className="section-header">
                         <h2 className="gift-icon">捐赠激励</h2>
@@ -476,65 +476,69 @@ export default function BookDonation() {
 
             <Col span={12}>
               <div className="donation-info-section">
-                <Card
-                  title={
-                    <div className="info-header">
-                      <MessageOutlined className="info-icon" />
-                      <span>捐赠信息</span>
+                <Col span={24}>
+                  {" "}
+                  <Card
+                    title={
+                      <div className="info-header">
+                        <MessageOutlined className="info-icon" />
+                        <span>捐赠信息</span>
+                      </div>
+                    }
+                    className="info-card"
+                  >
+                    <div className="action-buttons">
+                      <Button type="primary" className="report-btn">
+                        生成捐赠报告
+                      </Button>
+                      <Button className="reload-btn">重置</Button>
+                      <Button type="primary" className="quick-btn">
+                        快捷操作
+                      </Button>
                     </div>
-                  }
-                  className="info-card"
-                >
-                  <div className="action-buttons">
-                    <Button type="primary" className="report-btn">
-                      生成捐赠报告
-                    </Button>
-                    <Button className="reload-btn">重置</Button>
-                    <Button type="primary" className="quick-btn">
-                      快捷操作
-                    </Button>
-                  </div>
 
-                  <Table
-                    columns={donationColumns}
-                    dataSource={donationData}
-                    pagination={false}
-                    size="small"
-                    className="donation-table"
-                  />
-
-                  <div className="pagination-container">
-                    <Pagination
-                      defaultCurrent={1}
-                      total={100}
-                      showSizeChanger
-                      showQuickJumper
+                    <Table
+                      columns={donationColumns}
+                      dataSource={donationData}
+                      pagination={false}
                       size="small"
-                      pageSizeOptions={["10", "20", "50"]}
-                      defaultPageSize={10}
-                      showTotal={(total) => `${total}条/页`}
+                      className="donation-table"
                     />
-                  </div>
-                </Card>
 
-                <Card
-                  title={
-                    <div className="ranking-header">
-                      <TrophyOutlined className="trophy-icon" />
-                      <span>排名统计</span>
+                    <div className="pagination-container">
+                      <Pagination
+                        defaultCurrent={1}
+                        total={100}
+                        showSizeChanger
+                        showQuickJumper
+                        size="small"
+                        pageSizeOptions={["10", "20", "50"]}
+                        defaultPageSize={10}
+                        showTotal={(total) => `${total}条/页`}
+                      />
                     </div>
-                  }
-                  className="ranking-card"
-                >
-                  <Table
-                    columns={rankingColumns}
-                    dataSource={rankingData}
-                    pagination={false}
-                    size="small"
-                    scroll={{ x: "max-content", y: 40 * 5 }}
-                    className="ranking-table"
-                  />
-                </Card>
+                  </Card>
+                </Col>
+                <Col span={24} style={{ marginTop: "-16px" }}>
+                  <Card
+                    title={
+                      <div className="ranking-header">
+                        <TrophyOutlined className="trophy-icon" />
+                        <span>排名统计</span>
+                      </div>
+                    }
+                    className="ranking-card"
+                  >
+                    <Table
+                      columns={rankingColumns}
+                      dataSource={rankingData}
+                      pagination={false}
+                      size="small"
+                      scroll={{ x: "max-content", y: 40 * 3 }}
+                      className="ranking-table"
+                    />
+                  </Card>
+                </Col>
               </div>
             </Col>
           </Row>

@@ -12,7 +12,7 @@ import {
   ContactsOutlined,
 } from "@ant-design/icons";
 import type { MenuProps } from "antd";
-import { Breadcrumb, Layout, Menu, theme } from "antd";
+import { Breadcrumb, Layout, Menu, theme, App as AntApp } from "antd";
 import { ConfigProvider } from "antd";
 import { useRouter } from "next/navigation";
 import "./basic-layout.sass";
@@ -111,46 +111,59 @@ export function AntdLayout({ children }: { children: React.ReactNode }) {
         },
       }}
     >
-      <Layout
-        className="fathet-layout"
-        style={{
-          minHeight: "100vh",
-          height: "100vh", // 确保固定高度
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
-        <Header
-          style={{ display: "flex", alignItems: "center", flex: "0 0 auto" }}
+      <AntApp>
+        {" "}
+        <Layout
+          className="fathet-layout"
+          style={{
+            minHeight: "100vh",
+            height: "100vh", // 确保固定高度
+            display: "flex",
+            flexDirection: "column",
+          }}
         >
-          <img src="/pic_book_logo@2x.png" alt="Logo" width={30}></img>
-          <h1 className="project-name">“爱孩子的书”绘本馆</h1>
-        </Header>
-        <div style={{ padding: "0 0px" }}>
-          <Layout
-            style={{
-              padding: "0px 0",
-              background: colorBgContainer,
-              borderRadius: borderRadiusLG,
-            }}
+          <Header
+            style={{ display: "flex", alignItems: "center", flex: "0 0 auto" }}
           >
-            <Sider style={{ background: "#fdead0" }} width={160} theme="light">
-              <Menu
-                mode="inline"
-                defaultSelectedKeys={["1"]}
-                defaultOpenKeys={["1"]}
-                style={{ height: "100%" }}
-                items={items2}
-                onClick={handleMenuClick}
-              />
-            </Sider>
-            <Content style={{ padding: "1rem 1.5rem 5rem 1.5rem", minHeight: 280 , backgroundColor: "#efefef" }}>
-              {children}
-            </Content>
-          </Layout>
-        </div>
-        {/* <Footer style={{ textAlign: "center" }}>Ant Design ©{new Date().getFullYear()} Created by Ant UED</Footer> */}
-      </Layout>
+            <img src="/pic_book_logo@2x.png" alt="Logo" width={30}></img>
+            <h1 className="project-name">“爱孩子的书”绘本馆</h1>
+          </Header>
+          <div style={{ padding: "0 0px" }}>
+            <Layout
+              style={{
+                padding: "0px 0",
+                background: colorBgContainer,
+                borderRadius: borderRadiusLG,
+              }}
+            >
+              <Sider
+                style={{ background: "#fdead0" }}
+                width={160}
+                theme="light"
+              >
+                <Menu
+                  mode="inline"
+                  defaultSelectedKeys={["1"]}
+                  defaultOpenKeys={["1"]}
+                  style={{ height: "100%" }}
+                  items={items2}
+                  onClick={handleMenuClick}
+                />
+              </Sider>
+              <Content
+                style={{
+                  padding: "1rem 1.5rem 5rem 1.5rem",
+                  minHeight: 280,
+                  backgroundColor: "#efefef",
+                }}
+              >
+                {children}
+              </Content>
+            </Layout>
+          </div>
+          {/* <Footer style={{ textAlign: "center" }}>Ant Design ©{new Date().getFullYear()} Created by Ant UED</Footer> */}
+        </Layout>
+      </AntApp>
     </ConfigProvider>
   );
 }

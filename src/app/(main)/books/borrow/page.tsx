@@ -414,48 +414,45 @@ const BookBorrowPage = () => {
               </Row>
             </Col>
             <Col span={12}>
-              <Row gutter={[0, 16]}>
-                <Card className="borrow-history-card">
-                  <div className="history-header">
-                    <ClockCircleOutlined
-                      style={{ fontSize: 24, color: "#F59A23" }}
-                    />
-                    <Title level={5} style={{ margin: "0 0 0 8px" }}>
-                      借阅历史记录
-                    </Title>
-                  </div>
-
+              <Card className="borrow-history-card">
+                <div className="history-header">
+                  <ClockCircleOutlined
+                    style={{ fontSize: 24, color: "#F59A23" }}
+                  />
+                  <Title level={5} style={{ margin: "0 0 0 8px" }}>
+                    借阅历史记录
+                  </Title>
                   <Tabs defaultActiveKey="1" className="history-tabs">
                     <TabPane tab="待归还记录" key="1"></TabPane>
                     <TabPane tab="逾期记录" key="2"></TabPane>
                     <TabPane tab="已归还记录" key="3"></TabPane>
                     <TabPane tab="快速操作" key="4"></TabPane>
                   </Tabs>
+                </div>
 
-                  <div className="table-responsive">
-                    <Table
-                      columns={getHistoryColumns()}
-                      dataSource={borrowHistoryData}
-                      pagination={false}
-                      size="small"
-                      bordered
-                      scroll={{ x: "max-content", y: 48.9 * 7 }}
-                    />
-                  </div>
+                <div className="table-responsive">
+                  <Table
+                    columns={getHistoryColumns()}
+                    dataSource={borrowHistoryData}
+                    pagination={false}
+                    size="small"
+                    bordered
+                    scroll={{ x: "max-content", y: 49.8 * 8 }}
+                  />
+                </div>
 
-                  <div className="pagination-container">
-                    <Pagination
-                      size="small"
-                      total={50}
-                      showSizeChanger={width > 768}
-                      showQuickJumper={width > 768}
-                      defaultCurrent={1}
-                      defaultPageSize={10}
-                      simple={width <= 768}
-                    />
-                  </div>
-                </Card>
-              </Row>
+                <div className="pagination-container">
+                  <Pagination
+                    size="small"
+                    total={50}
+                    showSizeChanger={width > 768}
+                    showQuickJumper={width > 768}
+                    defaultCurrent={1}
+                    defaultPageSize={10}
+                    simple={width <= 768}
+                  />
+                </div>
+              </Card>
             </Col>
 
             <Col span={12}>
@@ -475,10 +472,10 @@ const BookBorrowPage = () => {
                     pagination={false}
                     size="small"
                     bordered
-                    scroll={{ x: "max-content", y: 49 * 5 }}
+                    scroll={{ x: "max-content", y: 49 * 2 }}
                   />
                 </div>
-                <div style={{ marginTop: 16, textAlign: "center" }}>
+                <div style={{ marginTop: 40, textAlign: "center" }}>
                   <Button
                     type="primary"
                     style={{
@@ -503,18 +500,19 @@ const BookBorrowPage = () => {
                   <Title level={5} style={{ margin: "0 0 0 8px" }}>
                     统计分析
                   </Title>
-                </div>
-
-                <Select
+                  <Select
                   options={statisticsSelctOption}
-                  style={{ width: 120 }}
+                  style={{ width: 120, margin: "0 24px" }}
                   defaultValue="oneDay"
                 />
+                </div>
+
+
 
                 <div
                   className="chart-container"
                   style={{
-                    height: 320,
+                    height: 223,
                     background: "#f5f5f5",
                     display: "flex",
                     justifyContent: "center",

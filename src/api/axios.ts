@@ -1,8 +1,6 @@
 // lib/axios.ts
 import axios from "axios";
 
-console.log("✅ Axios baseURL from .env:", process.env.NEXT_PUBLIC_API_BASE_URL);
-
 const axiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL, // 支持部署时灵活配置
   timeout: 10000,

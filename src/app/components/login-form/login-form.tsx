@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Form, Input, Button, Typography, Flex } from "antd";
+import { Form, Input, Button, Typography, Flex, Row, Col } from "antd";
 import {
   UserOutlined,
   LockOutlined,
@@ -10,10 +10,7 @@ import {
   SafetyCertificateOutlined,
 } from "@ant-design/icons";
 import "./login-form.scss";
-import { login } from "src/lib/auth";
-
-const { Title, Text } = Typography;
-
+import { login } from "src/api/auth";
 interface LoginFormProps {
   onSuccess: () => void;
   verificationImg: string;
@@ -30,10 +27,6 @@ export default function LoginForm({
   const [showPassword, setShowPassword] = useState(false);
   const [form] = Form.useForm();
 
-  const handleTest = () => {
-    console.log("test");
-  };
-
   const handleSubmit = async (values: {
     userId: string;
     password: string;
@@ -41,8 +34,9 @@ export default function LoginForm({
   }) => {
     try {
       const success = await login({ ...values, verificationCodeId });
+      console.log(success);
       if (success) {
-        console.log("onSuccess")
+        console.log("onSuccess");
         onSuccess();
       }
     } catch (error) {
@@ -98,11 +92,16 @@ export default function LoginForm({
           name="verificationCode"
           rules={[{ required: true, message: "请输入验证码" }]}
         >
-          <Input
-            className="input"
-            prefix={<SafetyCertificateOutlined className="icon" />}
-            placeholder="验证码"
-            suffix={
+          <Row gutter={0}>
+            <Col span={18}>
+              <Input
+                className="input"
+                prefix={<SafetyCertificateOutlined className="icon" />}
+                placeholder="验证码"
+                // suffix={}
+              />
+            </Col>
+            <Col span={6}>
               <div className="captcha">
                 <img
                   className="captchaImg"
@@ -111,8 +110,8 @@ export default function LoginForm({
                   onClick={refreshCaptcha}
                 />
               </div>
-            }
-          />
+            </Col>
+          </Row>
         </Form.Item>
 
         <Form.Item style={{ paddingTop: "30px" }}>

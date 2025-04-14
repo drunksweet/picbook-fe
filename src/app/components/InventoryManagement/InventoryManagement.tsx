@@ -1,88 +1,85 @@
 "use client";
 
 import "./InventoryManagement.sass";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { App } from "antd";
+import { useRouter } from "next/navigation";
 
-import {
-  Button,
-  Card,
-  Form,
-  Input,
-  Select,
-  DatePicker,
-  Space,
-  Pagination,
-  ConfigProvider,
-} from "antd";
+import { Tag,Button, Card, Form, Input, Select, Space, ConfigProvider } from "antd";
 import {
   SearchOutlined,
   RedoOutlined,
-  PlusOutlined,
-  UploadOutlined,
-  DownloadOutlined,
-  PrinterOutlined,
-  ThunderboltOutlined,
+  ExclamationCircleOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
-import Spacer from "../common/Spacer/spacer";
 import TangTable from "../TangTable/TangTable";
-
-interface InventoryItem {
-  key: string;
-  index: number;
-  bookId: string;
-  title: string;
-  author: string;
-  publisher: string;
-  category: string;
-  quantity: number;
-  status: "充足" | "预警" | "短缺";
-  location: string;
-  storageTime: string;
-}
+import InventoryActionButtons from "./InventoryActionButtons/InventoryActionButtons";
+import EditInventoryModal from "./EditInventoryModal/EditInventoryModal";
+import {
+  fetchInventoryData,
+  generateMockData,
+  deleteInventoryItem,
+  type InventoryItem,
+  type SearchParams,
+} from "@/api/inventory/inventory";
 
 export default function InventoryManagement() {
+  const { message, modal } = App.useApp();
   // 表单处理
   const [form] = Form.useForm();
 
-  // // 分页状态
-  // const [data, setData] = useState<InventoryItem[]>([]);
-  // const [currentPage, setCurrentPage] = useState(1);
-  // const [pageSize, setPageSize] = useState(10);
+  // 分页状态
+  const [loading, setLoading] = useState<boolean>(false);
+  const [data, setData] = useState<InventoryItem[]>([]);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(15);
+  const [total, setTotal] = useState<number>(0);
+  const [totalPages, setTotalPages] = useState<number>(0);
+  const [useMock, setUseMock] = useState<boolean>(false);
+  const router = useRouter();
+
+  // 编辑模态框状态
+  const [editModalVisible, setEditModalVisible] = useState<boolean>(false);
+  const [currentRecord, setCurrentRecord] = useState<InventoryItem | undefined>(
+    undefined
+  );
 
   // 状态颜色映射
-  const statusColorMap: Record<InventoryItem["status"], string> = {
-    充足: "#52c41a",
-    预警: "#faad14",
-    短缺: "#ff7875",
+  const statusColorMap: Record<InventoryItem["stock_status"], string> = {
+    充足: "green",
+    预警: "orange",
+    短缺: "red",
   };
 
   // 表格列配置
   const columns: ColumnsType<InventoryItem> = [
     { title: "序号", dataIndex: "index", align: "center" },
-    { title: "绘本编号", dataIndex: "bookId", align: "center" },
-    { title: "绘本名称", dataIndex: "title", align: "center" },
+    { title: "绘本编号", dataIndex: "book_id", align: "center" },
+    { title: "绘本名称", dataIndex: "name", align: "center" },
     { title: "作者", dataIndex: "author", align: "center" },
     { title: "出版社", dataIndex: "publisher", align: "center" },
     { title: "类别", dataIndex: "category", align: "center" },
-    { title: "库存数量", dataIndex: "quantity", align: "center" },
+    { title: "库存数量", dataIndex: "stock", align: "center" },
     {
       title: "库存状态",
-      dataIndex: "status",
+      dataIndex: "stock_status",
       align: "center",
-      render: (status: InventoryItem["status"]) => (
-        <span style={{ color: statusColorMap[status] }}>{status}</span>
+      render: (stock_status: InventoryItem["stock_status"]) => (
+        <Tag color = {statusColorMap[stock_status]}>
+          {stock_status}
+        </Tag>
       ),
     },
-    { title: "库存位置", dataIndex: "location", align: "center" },
-    { title: "入库时间", dataIndex: "storageTime", align: "center" },
+    { title: "入库时间", dataIndex: "created_at", align: "center" },
     {
       title: "操作",
       align: "center",
-      render: () => (
+      render: (_, record) => (
         <Space>
-          <Button type="link">编辑</Button>
-          <Button type="link" danger>
+          <Button type="link" onClick={() => handleEdit(record)}>
+            编辑
+          </Button>
+          <Button type="link" danger onClick={() => handleDelete(record)}>
             删除
           </Button>
         </Space>
@@ -90,41 +87,165 @@ export default function InventoryManagement() {
     },
   ];
 
-  // 模拟数据 - 创建更多数据来测试分页
-  const generateData = () => {
-    const data: InventoryItem[] = [];
-    for (let i = 1; i <= 300; i++) {
-      data.push({
-        key: i.toString(),
-        index: i,
-        bookId: `2023${i.toString().padStart(4, "0")}`,
-        title: `绘本${i}`,
-        author: `作者${(i % 10) + 1}`,
-        publisher: `出版社${(i % 5) + 1}`,
-        category: i % 2 === 0 ? "儿童故事" : "科普知识",
-        quantity: Math.floor(Math.random() * 200) + 1,
-        status: i % 3 === 0 ? "充足" : i % 3 === 1 ? "预警" : "短缺",
-        location: `${String.fromCharCode(65 + (i % 5))}区${(i % 10) + 1}号架`,
-        storageTime: `2025-${(i % 12) + 1}-${(i % 28) + 1}`,
-      });
+  // 获取库存数据
+  const getInventoryData = async (params: SearchParams) => {
+    setLoading(true);
+
+    // 确保params中包含page和page_size
+    const requestParams: SearchParams = {
+      ...params,
+      page: params.page || currentPage,
+      page_size: params.page_size || pageSize,
+    };
+
+    try {
+      const result = await fetchInventoryData(requestParams);
+
+      if (result.success) {
+        setData(result.data!.items);
+        setCurrentPage(result.data!.currentPage);
+        setTotalPages(result.data!.totalPages);
+        setTotal(result.data!.total);
+        setUseMock(false);
+      } else {
+        message.error(result.error);
+
+        // 如果需要登录，跳转到登录页
+        if (result.needLogin) {
+          router.push("/login");
+          return;
+        }
+
+        // 如果API返回错误，使用模拟数据
+        const mockData = generateMockData(pageSize);
+        setData(mockData.items);
+        setTotalPages(mockData.totalPages);
+        setTotal(mockData.total);
+        setCurrentPage(params.page);
+        setUseMock(true);
+      }
+    } catch (error) {
+      console.error("获取库存数据失败:", error);
+      message.error("获取库存数据失败，请稍后重试");
+
+      // 使用模拟数据
+      const mockData = generateMockData(pageSize);
+      setData(mockData.items);
+      setTotalPages(mockData.totalPages);
+      setTotal(mockData.total);
+      setCurrentPage(params.page);
+      setUseMock(true);
+    } finally {
+      setLoading(false);
     }
-    return data;
   };
 
-  const dataSource = generateData();
+  // 初始加载数据
+  useEffect(() => {
+    getInventoryData({
+      page: currentPage,
+      page_size: pageSize,
+    });
+  }, []);
 
-  // // 计算当前页的数据
-  // const currentData = dataSource.slice(
-  //   (currentPage - 1) * pageSize,
-  //   currentPage * pageSize
-  // );
+  // 处理分页变化
+  const handlePageChange = (page: number, size?: number) => {
+    const newPageSize = size || pageSize;
+    setCurrentPage(page);
+    if (size) setPageSize(size);
 
-  // // Handle pagination change
-  // const handlePageChange = (page: number, size: number) => {
-  //   // console.log(`Page changed to ${page}, size changed to ${size}`);
-  //   setCurrentPage(page);
-  //   setPageSize(size);
-  // };
+    // 获取表单当前值
+    const formValues = form.getFieldsValue();
+
+    // 构建查询参数
+    const params: SearchParams = {
+      ...formValues,
+      page,
+      page_size: newPageSize,
+    };
+
+    getInventoryData(params);
+  };
+
+  // 处理搜索
+  const handleSearch = () => {
+    const formValues = form.getFieldsValue();
+
+    // 构建查询参数
+    const params: SearchParams = {
+      ...formValues,
+      page: 1, // 搜索时重置到第一页
+      page_size: pageSize,
+    };
+
+    setCurrentPage(1); // 重置当前页为第一页
+    getInventoryData(params);
+  };
+
+  // 处理重置
+  const handleReset = () => {
+    form.resetFields();
+    setCurrentPage(1);
+
+    // 重置后获取所有数据
+    getInventoryData({
+      page: 1,
+      page_size: pageSize,
+    });
+  };
+
+  // 处理新增库存记录后的刷新
+  const handleInventoryAdded = () => {
+    // 刷新当前页数据
+    getInventoryData({
+      ...form.getFieldsValue(),
+      page: currentPage,
+      page_size: pageSize,
+    });
+  };
+
+  // 处理编辑按钮点击
+  const handleEdit = (record: InventoryItem) => {
+    setCurrentRecord(record);
+    setEditModalVisible(true);
+  };
+
+  // 处理删除按钮点击
+  const handleDelete = (record: InventoryItem) => {
+    modal.confirm({
+      title: "确认删除",
+      icon: <ExclamationCircleOutlined />,
+      content: `确定要删除绘本 "${record.name}" 吗？此操作不可恢复。`,
+      okText: "确认",
+      cancelText: "取消",
+      okType: "danger",
+      onOk: async () => {
+        try {
+          const result = await deleteInventoryItem(record.book_id);
+
+          if (result.success) {
+            message.success("删除成功");
+            // 刷新数据
+            getInventoryData({
+              page: currentPage,
+              page_size: pageSize,
+              ...form.getFieldsValue(),
+            });
+          } else {
+            message.error(result.error || "删除失败");
+
+            // 如果需要登录，跳转到登录页
+            if (result.needLogin) {
+              router.push("/login");
+            }
+          }
+        } catch (error) {
+          console.error("删除绘本时出错:", error);
+          message.error("删除绘本时出错，请稍后重试");
+        }
+      },
+    });
+  };
 
   return (
     <ConfigProvider
@@ -136,13 +257,13 @@ export default function InventoryManagement() {
       }}
     >
       <div className="inventory-container" style={{ paddingTop: "10px" }}>
-        <Card title="信息检索" bordered={false}>
+        <Card title="信息检索" variant="outlined">
           <Form form={form} layout="inline">
-            <Space size={"large"}>
-              <Form.Item label="绘本编号" name="bookId">
+            <Space size={"small"}>
+              <Form.Item label="绘本编号" name="book_id">
                 <Input placeholder="请输入" />
               </Form.Item>
-              <Form.Item label="绘本名称" name="title">
+              <Form.Item label="绘本名称" name="name">
                 <Input placeholder="请输入" />
               </Form.Item>
               <Form.Item label="绘本类别" name="category">
@@ -151,26 +272,30 @@ export default function InventoryManagement() {
                   options={[
                     { value: "儿童故事", label: "儿童故事" },
                     { value: "科普知识", label: "科普知识" },
+                    { value: "艺术启蒙", label: "艺术启蒙" },
                   ]}
+                  allowClear
                 />
               </Form.Item>
               <Form.Item label="作者" name="author">
                 <Input placeholder="请输入" />
               </Form.Item>
-              <Form.Item label="入库时间" name="storageTime">
-                <DatePicker />
-              </Form.Item>
             </Space>
 
             <Form.Item style={{ marginLeft: "auto" }}>
               <Space size={"large"}>
-                <Button type="primary" icon={<RedoOutlined />}>
+                <Button
+                  type="primary"
+                  icon={<RedoOutlined />}
+                  onClick={handleReset}
+                >
                   重置
                 </Button>
                 <Button
                   type="primary"
                   icon={<SearchOutlined />}
                   style={{ marginLeft: 8 }}
+                  onClick={handleSearch}
                 >
                   搜索
                 </Button>
@@ -180,66 +305,36 @@ export default function InventoryManagement() {
         </Card>
 
         <div className="main-container">
-          {/* button block */}
-          <div style={{ padding: 10 }}>
-            <div className="btn-container">
-              <Button type="primary" icon={<PlusOutlined />}>
-                新增库存记录
-              </Button>
-              <Button type="primary" icon={<UploadOutlined />}>
-                批量导入
-              </Button>
-              <Button type="primary" icon={<DownloadOutlined />}>
-                导出库存报表
-              </Button>
-              <Spacer />
-              <Button type="primary" icon={<ThunderboltOutlined />}>
-                快速操作
-              </Button>
-              <Button type="primary" icon={<PrinterOutlined />}>
-                打印
-              </Button>
-            </div>
-          </div>
+          <InventoryActionButtons onInventoryAdded={handleInventoryAdded} />
 
           <div className="table-container">
             <TangTable
               columns={columns}
-              // dataSource={currentData}
-              dataSource={dataSource}
-              // currentPage={currentPage}
-              total = {dataSource.length}
-              pageSize={15}
-              // onPageChange={handlePageChange}
-              scroll={{ y: 50 * 15 }}
+              dataSource={data}
+              // loading={loading}
+              currentPage={currentPage}
+              total={total}
+              pageSize={pageSize}
+              onPageChange={handlePageChange}
+              scroll={{ y: 50 * 12 }}
             />
-
-            {/* <div
-              className="pagination"
-              style={{ marginTop: 0, padding: "10px 16px" }}
-            >
-              <Pagination
-                align="center"
-                current={currentPage}
-                defaultCurrent={1}
-                pageSize={pageSize}
-                total={dataSource.length}
-                showSizeChanger
-                showQuickJumper
-                size="small"
-                showTotal={(total) => `共 ${total} 条`}
-                onChange={(page, size) => {
-                  setCurrentPage(page);
-                  if (size) setPageSize(size);
-                }}
-                onShowSizeChange={(current, size) => {
-                  setCurrentPage(1);
-                  setPageSize(size);
-                }}
-              />
-            </div> */}
           </div>
         </div>
+
+        {/* 编辑模态框 */}
+        <EditInventoryModal
+          visible={editModalVisible}
+          onCancel={() => setEditModalVisible(false)}
+          onSuccess={() => {
+            // 刷新数据
+            getInventoryData({
+              page: currentPage,
+              page_size: pageSize,
+              ...form.getFieldsValue(),
+            });
+          }}
+          record={currentRecord}
+        />
       </div>
     </ConfigProvider>
   );

@@ -1,0 +1,215 @@
+.memberManagement {
+    
+    .pageTitle {
+      font-size: 24px;
+      color: #b78846;
+      margin-bottom: 20px;
+      font-weight: bold;
+      border-bottom: 1px solid #e8e8e8;
+      padding-bottom: 10px;
+    }
+    
+    .contentWrapper {
+      padding-top: 1rem;
+      display: flex;
+      gap: 20px;
+      
+      .leftContent {
+        flex: 1;
+        
+        .searchCard {
+          padding: 4px;
+          border-radius: 4px;
+          
+          .sectionTitle {
+            font-size: 18px;
+            color: #b78846;
+            margin-bottom: 16px;
+          }
+          
+          .searchRow {
+            margin-bottom: 16px;
+            
+            .formItem {
+              display: flex;
+              flex-direction: column;
+              
+              label {
+                margin-bottom: 8px;
+                font-size: 14px;
+                color: #666;
+              }
+            }
+            
+            .buttonGroup {
+              display: flex;
+              justify-content: flex-end;
+              align-items: flex-end;
+              gap: 10px;
+              
+              .resetButton, .searchButton {
+                min-width: 80px;
+                height: 32px;
+                background-color: #b78846;
+                border-color: #b78846;
+                
+                &:hover {
+                  background-color: darken(#b78846, 10%);
+                  border-color: darken(#b78846, 10%);
+                }
+              }
+              
+              .resetButton {
+                background-color: #fff;
+                color: #b78846;
+                
+                &:hover {
+                  background-color: #f9f9f9;
+                  color: darken(#b78846, 10%);
+                }
+              }
+            }
+          }
+        }
+        
+        .tableSection {
+          background-color: #fff;
+          border-radius: 4px;
+          padding: 16px;
+          
+
+          
+          .memberTable {
+            margin-bottom: 16px;
+            
+            // :global {
+            //   // .ant-table-thead > tr > th {
+            //   //   background-color: #f5f5f5;
+            //   //   color: #333;
+            //   //   font-weight: bold;
+            //   // }
+            // }
+            
+            .evenRow {
+              background-color: #f9f9f9;
+            }
+            
+            .oddRow {
+              background-color: #fff;
+            }
+          }
+          
+          .paginationWrapper {
+            display: flex;
+            justify-content: flex-end;
+            
+            // .pagination {
+            //   // :global {
+            //   //   .ant-pagination-item-active {
+            //   //     border-color: #f5a623;
+                  
+            //   //     a {
+            //   //       color: #f5a623;
+            //   //     }
+            //   //   }
+            //   // }
+            // }
+          }
+        }
+      }
+      
+      .rightContent {
+        flex: 1;
+        
+        .statsCard {
+          border-radius: 4px;
+          
+          .statsHeader {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+            
+            .statsIcon {
+              width: 40px;
+              height: 40px;
+              border-radius: 50%;
+              background-color: #f5f5f5;
+              margin-right: 10px;
+              position: relative;
+              
+              &::before {
+                content: '';
+                position: absolute;
+                width: 20px;
+                height: 20px;
+                border: 3px solid #f5a623;
+                border-radius: 50%;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+              }
+              
+              &::after {
+                content: '';
+                position: absolute;
+                width: 10px;
+                height: 10px;
+                background-color: #f5a623;
+                top: 10px;
+                right: 5px;
+                border-radius: 50%;
+              }
+            }
+            
+            .statsTitle {
+              font-size: 18px;
+              color: #333;
+              margin: 0;
+            }
+          }
+          
+          .statsButtons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            
+            .pointsButton {
+              background-color: #f5a623;
+              border-color: #f5a623;
+              
+              &:hover {
+                background-color: darken(#f5a623, 10%);
+                border-color: darken(#f5a623, 10%);
+              }
+            }
+          }
+        }
+        
+        .chartCard {
+          border-radius: 4px;
+
+          
+          .chartContainer {
+            margin-top: 20px;
+          }
+        }
+      }
+    }
+    
+    .femaleText {
+      color: #ff69b4;
+    }
+    
+    .maleText {
+      color: #1e90ff;
+    }
+    
+    .actionLink {
+      color: #f5a623;
+      
+      &:hover {
+        color: darken(#f5a623, 10%);
+      }
+    }
+  }
+  

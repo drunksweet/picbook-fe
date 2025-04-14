@@ -42,7 +42,10 @@
     .history-tabs,
     .statistics-tabs {
       .ant-tabs-nav {
-        margin-bottom: 16px;
+        position: absolute;
+        top: 16;
+        margin-left: 64px;
+
       }
       
       .ant-tabs-nav-list {

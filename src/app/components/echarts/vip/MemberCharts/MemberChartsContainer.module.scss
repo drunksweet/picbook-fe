@@ -1,0 +1,60 @@
+.chartContainerWrapper {
+    width: 100%;
+    
+    .chartLegend {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 10px;
+      
+      .legendItem {
+        display: flex;
+        align-items: center;
+        margin: 0 10px;
+        font-size: 14px;
+        
+        .legendColor {
+          width: 12px;
+          height: 12px;
+          margin-right: 5px;
+          border-radius: 2px;
+        }
+      }
+    }
+    
+    .chartContent {
+      display: flex;
+      
+      .chartMain {
+        flex: 1;
+      }
+      
+      .chartButtons {
+        padding: 10px;
+        border: 2px #f5a623 solid;
+        background-color: #f5c77c52;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 25px;
+        // margin-left: 10px;
+        
+        .chartTypeButton {
+          border: 1px solid #f5a623;
+          color: #f5a623;
+          background-color: #fff;
+          border-radius: 4px;
+          padding: 5px 10px;
+          min-width: 80px;
+          text-align: center;
+          
+          &:hover, &.active {
+            background-color: #f5a623;
+            color: #fff;
+          }
+        }
+      }
+    }
+  }
+  
