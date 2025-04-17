@@ -23,8 +23,16 @@ interface InventoryFormData {
   author: string;
   publisher: string;
   category: string;
-  stock: number;
-  stock_where: string;
+  quantity_added: number;
+}
+
+interface RequestBody {
+  author: string;
+  category: string;
+  name: string;
+  publisher: string;
+  quantity_added: number;
+  user_id?: number;
 }
 
 export default function InventoryActionButtons({
@@ -50,18 +58,31 @@ export default function InventoryActionButtons({
   // 提交表单
   const handleSubmit = async () => {
     try {
-      const values = await form.validateFields();
+      // 验证表单字段
+      const formValues = (await form.validateFields()) as InventoryFormData;
       setLoading(true);
 
       // 从localStorage获取认证token
       const authToken = localStorage.getItem("authToken");
       if (!authToken) {
         message.error("认证失败，请重新登录");
-        return;
+        return {
+          success: false,
+          error: "认证失败",
+          needLogin: true,
+        };
+      }
+
+      const requestBody: RequestBody = {
+        author: formValues.author,
+        category: formValues.category,
+        name: formValues.name,
+        publisher: formValues.publisher,
+        quantity_added: formValues.quantity_added,
       }
 
       // 发送请求添加库存记录
-      const response = await axiosInstance.post("/v1/book/stock/add", values, {
+      const response = await axiosInstance.post("/v1/book/stock/add", requestBody, {
         headers: {
           Authorization: authToken,
         },
@@ -163,14 +184,6 @@ export default function InventoryActionButtons({
       >
         <Form form={form} layout="vertical" initialValues={{ stock: 1 }}>
           <Form.Item
-            name="book_id"
-            label="绘本编号"
-            rules={[{ required: true, message: "请输入绘本编号" }]}
-          >
-            <Input placeholder="请输入绘本编号" />
-          </Form.Item>
-
-          <Form.Item
             name="name"
             label="绘本名称"
             rules={[{ required: true, message: "请输入绘本名称" }]}
@@ -202,25 +215,24 @@ export default function InventoryActionButtons({
             <Select
               placeholder="请选择类别"
               options={[
-                { value: "儿童故事", label: "儿童故事" },
-                { value: "科普知识", label: "科普知识" },
-                { value: "艺术启蒙", label: "艺术启蒙" },
+                { value: "children_story", label: "儿童故事" },
+                { value: "science_knowledge", label: "科普知识" },
+                { value: "art_enlightenment", label: "艺术启蒙" },
               ]}
             />
           </Form.Item>
 
           <Form.Item
-            name="stock"
-            label="库存数量"
+            name="quantity_added"
+            label="添加库存"
             rules={[{ required: true, message: "请输入库存数量" }]}
           >
             <InputNumber
               min={1}
-              placeholder="请输入库存数量"
+              placeholder="请输入添加的库存数量"
               style={{ width: "100%" }}
             />
           </Form.Item>
-
         </Form>
       </Modal>
     </div>

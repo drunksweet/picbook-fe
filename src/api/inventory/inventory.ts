@@ -4,13 +4,13 @@ import { message } from "antd";
 export interface InventoryItem {
   key: string;
   index: number;
-  book_id: string;
+  book_id: number;
   name: string;
   author: string;
   publisher: string;
-  category: string;
+  category: "children_story" | "science_knowledge" | "art_enlightenment";
   stock: number;
-  stock_status: "充足" | "预警" | "短缺";
+  stock_status: "adequate" | "early_warning" | "shortage";
   created_at: string;
 }
 
@@ -28,6 +28,7 @@ export interface ApiResponse {
   data: {
     books: InventoryItem[];
     current_page: number;
+    total_num: number;
     total_page: number;
   };
   msg: string;
@@ -76,7 +77,7 @@ export const fetchInventoryData = async (params: SearchParams) => {
     });
 
     if (res.data.code === 200) {
-      const { books, current_page, total_page } = res.data.data;
+      const { books, current_page, total_page,total_num } = res.data.data;
 
       // 处理数据，添加key和index
       const processedData = books.map((item, index) => ({
@@ -91,7 +92,7 @@ export const fetchInventoryData = async (params: SearchParams) => {
           items: processedData,
           currentPage: current_page,
           totalPages: total_page,
-          total: total_page * params.page_size, // 估算总数
+          total: total_num,
         },
       };
     } else {
@@ -206,13 +207,13 @@ export const generateMockData = (pageSize: number) => {
     data.push({
       key: i.toString(),
       index: i,
-      book_id: `2023${i.toString().padStart(4, "0")}`,
+      book_id: i,
       name: `绘本${i}`,
       author: `作者${(i % 10) + 1}`,
       publisher: `出版社${(i % 5) + 1}`,
-      category: i % 3 === 0 ? "儿童故事" : i % 3 === 1 ? "科普知识" : "艺术启蒙",
+      category: i % 3 === 0 ? "children_story" : i % 3 === 1 ? "science_knowledge" : "art_enlightenment",
       stock: Math.floor(Math.random() * 200) + 1,
-      stock_status: i % 3 === 0 ? "充足" : i % 3 === 1 ? "预警" : "短缺",
+      stock_status: i % 3 === 0 ? "adequate" : i % 3 === 1 ? "early_warning" : "shortage",
       created_at: `2025-${(i % 12) + 1}-${(i % 28) + 1}`,
     });
   }

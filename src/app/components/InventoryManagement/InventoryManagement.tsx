@@ -5,7 +5,16 @@ import { useState, useEffect } from "react";
 import { App } from "antd";
 import { useRouter } from "next/navigation";
 
-import { Tag,Button, Card, Form, Input, Select, Space, ConfigProvider } from "antd";
+import {
+  Tag,
+  Button,
+  Card,
+  Form,
+  Input,
+  Select,
+  Space,
+  ConfigProvider,
+} from "antd";
 import {
   SearchOutlined,
   RedoOutlined,
@@ -44,11 +53,24 @@ export default function InventoryManagement() {
     undefined
   );
 
+  // 状态中英映射
+  const statusEtoCMap: Record<InventoryItem["stock_status"], string> = {
+    adequate: "充足",
+    early_warning: "预警",
+    shortage: "短缺",
+  };
+
+  const categoryEToCMap: Record<InventoryItem["category"], string> = {
+    children_story: "儿童故事",
+    science_knowledge: "科普知识",
+    art_enlightenment: "艺术启蒙",
+  };
+
   // 状态颜色映射
   const statusColorMap: Record<InventoryItem["stock_status"], string> = {
-    充足: "green",
-    预警: "orange",
-    短缺: "red",
+    adequate: "green",
+    early_warning: "orange",
+    shortage: "red",
   };
 
   // 表格列配置
@@ -58,15 +80,22 @@ export default function InventoryManagement() {
     { title: "绘本名称", dataIndex: "name", align: "center" },
     { title: "作者", dataIndex: "author", align: "center" },
     { title: "出版社", dataIndex: "publisher", align: "center" },
-    { title: "类别", dataIndex: "category", align: "center" },
+    {
+      title: "类别",
+      dataIndex: "category",
+      align: "center",
+      render: (category: InventoryItem["category"]) => (
+        <Tag>{categoryEToCMap[category]}</Tag>
+      ),
+    },
     { title: "库存数量", dataIndex: "stock", align: "center" },
     {
       title: "库存状态",
       dataIndex: "stock_status",
       align: "center",
       render: (stock_status: InventoryItem["stock_status"]) => (
-        <Tag color = {statusColorMap[stock_status]}>
-          {stock_status}
+        <Tag color={statusColorMap[stock_status]}>
+          {statusEtoCMap[stock_status]}
         </Tag>
       ),
     },
@@ -221,7 +250,7 @@ export default function InventoryManagement() {
       okType: "danger",
       onOk: async () => {
         try {
-          const result = await deleteInventoryItem(record.book_id);
+          const result = await deleteInventoryItem(record.book_id.toString());
 
           if (result.success) {
             message.success("删除成功");
@@ -270,9 +299,9 @@ export default function InventoryManagement() {
                 <Select
                   style={{ width: 120 }}
                   options={[
-                    { value: "儿童故事", label: "儿童故事" },
-                    { value: "科普知识", label: "科普知识" },
-                    { value: "艺术启蒙", label: "艺术启蒙" },
+                    { value: "children_story", label: "儿童故事" },
+                    { value: "science_knowledge", label: "科普知识" },
+                    { value: "art_enlightenment", label: "艺术启蒙" },
                   ]}
                   allowClear
                 />

@@ -1,323 +1,272 @@
-"use client";
+"use client"
 
-import type React from "react";
-import { useState } from "react";
+import type React from "react"
+
+import { useState, useEffect } from "react"
+import { ConfigProvider, App, Row, Col, Form } from "antd"
+import { useRouter } from "next/navigation"
+import Banner from "@/components/banner"
 import {
-  Typography,
-  Form,
-  Input,
-  Select,
-  Button,
-  Table,
-  Tabs,
-  Card,
-  Row,
-  Col,
-  Tag,
-  Pagination,
-  ConfigProvider,
-} from "antd";
-import {
-  SearchOutlined,
-  ClockCircleOutlined,
-  BarChartOutlined,
-} from "@ant-design/icons";
-import "./page.scss";
-import Banner from "@/components/banner";
-import { useWindowSize } from "@/hooks/useWindowSize";
-import BorrowBarChart from "@/components/echarts/borrow_bar/BorrowBarChart";
+  type BorrowRecordItem,
+  type BookItem,
+  fetchBorrowRecords,
+  searchBooks,
+  borrowBook,
+  generateMockBorrowRecords,
+  generateMockSearchResults,
+} from "@/api/books/borrow/borrow"
 
-const { Title, Text } = Typography;
-const { Option } = Select;
-const { TabPane } = Tabs;
+// 导入拆分后的组件
+import BorrowerInfoCard from "@/components/BookBorrow/BorrowerInfoCard/BorrowerInfoCard"
+import BookSearchForm from "@/components/BookBorrow/BookSearchForm/BookSearchForm"
+import BorrowHistoryCard from "@/components/BookBorrow/BorrowHistoryCard/BorrowHistoryCard"
+import SearchResultsCard from "@/components/BookBorrow/SearchResultsCard/SearchResultsCard"
+import StatisticsCard from "@/components/BookBorrow/StatisticsCard/StatisticsCard"
 
-// 模拟借阅历史数据
-const borrowHistoryData = [
-  {
-    key: "1",
-    id: "20230201",
-    name: "书名1",
-    borrower: "张三",
-    borrowDate: "2024-12-24",
-    returnDate: "2025-1-24",
-    status: "延迟",
-  },
-  {
-    key: "2",
-    id: "20230202",
-    name: "书名2",
-    borrower: "李斯",
-    borrowDate: "2024-12-24",
-    returnDate: "2025-1-24",
-    status: "逾期",
-  },
-  {
-    key: "3",
-    id: "20230203",
-    name: "书名3",
-    borrower: "王五",
-    borrowDate: "2024-12-24",
-    returnDate: "2025-1-24",
-    status: "正常",
-  },
-  {
-    key: "4",
-    id: "20230204",
-    name: "书名4",
-    borrower: "赵明",
-    borrowDate: "2024-12-24",
-    returnDate: "2025-1-24",
-    status: "正常",
-  },
-  {
-    key: "5",
-    id: "20230205",
-    name: "书名5",
-    borrower: "刘全",
-    borrowDate: "2024-12-24",
-    returnDate: "2025-1-24",
-    status: "流转",
-  },
-  {
-    key: "6",
-    id: "20230206",
-    name: "书名6",
-    borrower: "叶咏然",
-    borrowDate: "2024-12-24",
-    returnDate: "2025-1-24",
-    status: "流转",
-  },
-  {
-    key: "7",
-    id: "20230207",
-    name: "书名7",
-    borrower: "杨鸿",
-    borrowDate: "2024-12-24",
-    returnDate: "2025-1-24",
-    status: "流转",
-  },
-  {
-    key: "8",
-    id: "20230208",
-    name: "书名8",
-    borrower: "刘英",
-    borrowDate: "2024-12-24",
-    returnDate: "2025-1-24",
-    status: "流转",
-  },
-  {
-    key: "9",
-    id: "20230209",
-    name: "书名9",
-    borrower: "田静",
-    borrowDate: "2024-12-24",
-    returnDate: "2025-1-24",
-    status: "流转",
-  },
-  {
-    key: "10",
-    id: "20230210",
-    name: "书名10",
-    borrower: "邓小王",
-    borrowDate: "2024-12-24",
-    returnDate: "2025-1-24",
-    status: "流转",
-  },
-];
-
-// 模拟搜索结果数据
-const searchResultsData = [
-  {
-    key: "1",
-    id: "20230201",
-    name: "书名1",
-    category: "儿童故事",
-    publisher: "出版社1",
-    author: "作者1",
-  },
-  {
-    key: "2",
-    id: "20230202",
-    name: "书名2",
-    category: "科普知识",
-    publisher: "出版社2",
-    author: "作者2",
-  },
-  {
-    key: "3",
-    id: "20230203",
-    name: "书名3",
-    category: "儿童故事",
-    publisher: "出版社3",
-    author: "作者3",
-  },
-  {
-    key: "4",
-    id: "20230204",
-    name: "书名4",
-    category: "儿童故事",
-    publisher: "出版社4",
-    author: "作者4",
-  },
-  {
-    key: "5",
-    id: "20230205",
-    name: "书名5",
-    category: "科普知识",
-    publisher: "出版社5",
-    author: "作者5",
-  },
-  {
-    key: "6",
-    id: "20230206",
-    name: "书名6",
-    category: "艺术启蒙",
-    publisher: "出版社5",
-    author: "作者5",
-  },
-  {
-    key: "7",
-    id: "20230207",
-    name: "书名7",
-    category: "儿童故事",
-    publisher: "出版社5",
-    author: "作者5",
-  },
-];
+import "./page.scss"
 
 const BookBorrowPage = () => {
-  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
-  const { width } = useWindowSize();
+  const { message, modal } = App.useApp()
+  const [form] = Form.useForm()
+  const [searchForm] = Form.useForm()
+  const router = useRouter()
 
-  // 根据屏幕宽度调整列布局
-  const getColumnSpans = () => {
-    if (width < 768) {
-      return { left: 24, right: 24 };
-    } else if (width < 1200) {
-      return { left: 14, right: 10 };
-    } else {
-      return { left: 16, right: 8 };
+  // 借阅记录状态
+  const [borrowRecords, setBorrowRecords] = useState<BorrowRecordItem[]>([])
+  const [borrowCurrentPage, setBorrowCurrentPage] = useState<number>(1)
+  const [borrowPageSize, setBorrowPageSize] = useState<number>(10)
+  const [borrowTotal, setBorrowTotal] = useState<number>(0)
+  const [borrowTotalPages, setBorrowTotalPages] = useState<number>(0)
+  const [borrowLoading, setBorrowLoading] = useState<boolean>(false)
+  const [activeTab, setActiveTab] = useState<string>("1")
+
+  // 搜索结果状态
+  const [searchResults, setSearchResults] = useState<BookItem[]>([])
+  const [searchCurrentPage, setSearchCurrentPage] = useState<number>(1)
+  const [searchPageSize, setSearchPageSize] = useState<number>(5)
+  const [searchTotal, setSearchTotal] = useState<number>(0)
+  const [searchTotalPages, setSearchTotalPages] = useState<number>(0)
+  const [searchLoading, setSearchLoading] = useState<boolean>(false)
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([])
+  const [selectedBooks, setSelectedBooks] = useState<BookItem[]>([])
+
+  // 用户信息状态
+  const [userId, setUserId] = useState<string>("")
+
+  // 获取借阅记录
+  const getBorrowRecords = async () => {
+    setBorrowLoading(true)
+    try {
+      let queryStatus = ""
+      switch (activeTab) {
+        case "1":
+          queryStatus = "waiting_return"
+          break
+        case "2":
+          queryStatus = "overdue"
+          break
+        case "3":
+          queryStatus = "returned"
+          break
+        default:
+          queryStatus = ""
+      }
+
+      const result = await fetchBorrowRecords({
+        page: borrowCurrentPage,
+        page_size: borrowPageSize,
+        query_status: queryStatus,
+      })
+
+      if (result.success) {
+        setBorrowRecords(result.data!.items)
+        setBorrowCurrentPage(result.data!.currentPage)
+        setBorrowTotalPages(result.data!.totalPages)
+        setBorrowTotal(result.data!.total)
+      } else {
+        message.error(result.error)
+
+        // 如果需要登录，跳转到登录页
+        if (result.needLogin) {
+          router.push("/login")
+          return
+        }
+
+        // 使用模拟数据
+        const mockData = generateMockBorrowRecords(borrowPageSize)
+        setBorrowRecords(mockData.items)
+        setBorrowTotalPages(mockData.totalPages)
+        setBorrowTotal(mockData.total)
+      }
+    } catch (error) {
+      console.error("获取借阅记录失败:", error)
+      message.error("获取借阅记录失败，请稍后重试")
+
+      // 使用模拟数据
+      const mockData = generateMockBorrowRecords(borrowPageSize)
+      setBorrowRecords(mockData.items)
+      setBorrowTotalPages(mockData.totalPages)
+      setBorrowTotal(mockData.total)
+    } finally {
+      setBorrowLoading(false)
     }
-  };
+  }
 
-  const { left: leftSpan, right: rightSpan } = getColumnSpans();
+  // 搜索图书
+  const handleSearch = async () => {
+    const formValues = searchForm.getFieldsValue()
+    setSearchLoading(true)
 
-  // 借阅历史表格列定义 - 根据屏幕宽度调整
-  const getHistoryColumns = () => {
-    const baseColumns = [
-      { title: "序号", dataIndex: "key", key: "key", width: 60 },
-      { title: "图书编号", dataIndex: "id", key: "id", width: 100 },
-      { title: "书名", dataIndex: "name", key: "name", width: 100 },
-      { title: "借阅人", dataIndex: "borrower", key: "borrower", width: 80 },
-      {
-        title: "借阅日期",
-        dataIndex: "borrowDate",
-        key: "borrowDate",
-        width: 100,
-      },
-      {
-        title: "应归还时间",
-        dataIndex: "returnDate",
-        key: "returnDate",
-        width: 100,
-      },
-      {
-        title: "状态",
-        dataIndex: "status",
-        key: "status",
-        width: 80,
-        render: (status: string) => {
-          let color = "green";
-          if (status === "延迟") color = "orange";
-          if (status === "逾期") color = "volcano";
-          if (status === "流转") color = "blue";
-          return <Tag color={color}>{status}</Tag>;
-        },
-      },
-      {
-        title: "操作",
-        key: "action",
-        width: 80,
-        render: () => (
-          <Button type="link" style={{ color: "#F59A23", padding: "0" }}>
-            详情
-          </Button>
-        ),
-      },
-    ];
+    try {
+      const result = await searchBooks({
+        ...formValues,
+        page: searchCurrentPage,
+        page_size: searchPageSize,
+      })
 
-    // 在小屏幕上减少显示的列
-    if (width < 768) {
-      return baseColumns.filter(
-        (col) => !["borrowDate", "returnDate"].includes(col.dataIndex as string)
-      );
+      if (result.success) {
+        setSearchResults(result.data!.items)
+        setSearchCurrentPage(result.data!.currentPage)
+        setSearchTotalPages(result.data!.totalPages)
+        setSearchTotal(result.data!.total)
+      } else {
+        message.error(result.error)
+
+        // 如果需要登录，跳转到登录页
+        if (result.needLogin) {
+          router.push("/login")
+          return
+        }
+
+        // 使用模拟数据
+        const mockData = generateMockSearchResults(searchPageSize)
+        setSearchResults(mockData.items)
+        setSearchTotalPages(mockData.totalPages)
+        setSearchTotal(mockData.total)
+      }
+    } catch (error) {
+      console.error("搜索图书失败:", error)
+      message.error("搜索图书失败，请稍后重试")
+
+      // 使用模拟数据
+      const mockData = generateMockSearchResults(searchPageSize)
+      setSearchResults(mockData.items)
+      setSearchTotalPages(mockData.totalPages)
+      setSearchTotal(mockData.total)
+    } finally {
+      setSearchLoading(false)
+    }
+  }
+
+  // 处理借阅
+  const handleBorrow = async () => {
+    if (selectedRowKeys.length === 0) {
+      message.warning("请选择要借阅的图书")
+      return
     }
 
-    return baseColumns;
-  };
-
-  // 搜索结果表格列定义 - 根据屏幕宽度调整
-  const getSearchColumns = () => {
-    const baseColumns = [
-      {
-        title: "勾选",
-        dataIndex: "select",
-        key: "select",
-        width: 60,
-        render: () => <input type="radio" name="bookSelect" />,
-      },
-      { title: "图书编号", dataIndex: "id", key: "id", width: 100 },
-      { title: "书名", dataIndex: "name", key: "name", width: 100 },
-      { title: "类型", dataIndex: "category", key: "category", width: 100 },
-      { title: "出版社", dataIndex: "publisher", key: "publisher", width: 100 },
-      {
-        title: "作者",
-        dataIndex: "author",
-        key: "author",
-        width: 100,
-        render: (author: string) => (
-          <span style={{ color: "#F59A23" }}>{author}</span>
-        ),
-      },
-      {
-        title: "操作",
-        key: "action",
-        width: 80,
-        render: () => (
-          <Button type="link" style={{ color: "#F59A23", padding: "0" }}>
-            详情
-          </Button>
-        ),
-      },
-    ];
-
-    // 在小屏幕上减少显示的列
-    if (width < 768) {
-      return baseColumns.filter(
-        (col) => !["publisher"].includes(col.dataIndex as string)
-      );
-    } else if (width < 1200) {
-      return baseColumns;
+    const userInfo = form.getFieldsValue()
+    if (!userInfo.user_name || !userInfo.contact) {
+      message.warning("请填写借阅者信息")
+      return
     }
 
-    return baseColumns;
-  };
+    try {
+      // 这里应该调用借阅API
+      // 简化处理，实际应该循环处理多本书
+      const selectedBook = selectedBooks[0]
+      const result = await borrowBook(selectedBook.copy_id, userId || "mock_user_id")
 
-  const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
-    setSelectedRowKeys(newSelectedRowKeys);
-  };
+      if (result.success) {
+        message.success("借阅成功")
+        setSelectedRowKeys([])
+        setSelectedBooks([])
+        // 刷新借阅记录
+        getBorrowRecords()
+      } else {
+        message.error(result.error || "借阅失败")
+      }
+    } catch (error) {
+      console.error("借阅图书失败:", error)
+      message.error("借阅图书失败，请稍后重试")
+    }
+  }
 
-  const rowSelection = {
-    selectedRowKeys,
-    onChange: onSelectChange,
-  };
+  // 处理查看详情
+  const handleViewDetail = (record: BorrowRecordItem) => {
+    const statusEtoCMap: Record<BorrowRecordItem["return_status"], string> = {
+      waiting_return: "待归还",
+      returned: "已归还",
+      overdue: "已逾期",
+    }
 
-  const statisticsSelctOption = [
-    { value: "oneDay", label: <span>近一天</span> },
-    { value: "oneWeek", label: <span>近一周</span> },
-    { value: "towWeek", label: <span>近两周</span> },
-    { value: "oneMonth", label: <span>近一月</span> },
-  ];
+    modal.info({
+      title: "借阅详情",
+      content: (
+        <div>
+          <p>副本编号: {record.copy_id}</p>
+          <p>书本编号: {record.book_id}</p>
+          <p>借阅人: {record.user_name}</p>
+          <p>借阅人ID: {record.user_id}</p>
+          <p>应归还时间: {record.should_return_time}</p>
+          <p>状态: {statusEtoCMap[record.return_status]}</p>
+        </div>
+      ),
+    })
+  }
+
+  // 处理表格选择变化
+  const handleSelectChange = (newSelectedRowKeys: React.Key[], selectedRows: BookItem[]) => {
+    setSelectedRowKeys(newSelectedRowKeys)
+    setSelectedBooks(selectedRows)
+  }
+
+  // 处理借阅记录分页变化
+  const handleBorrowPageChange = (page: number, size?: number) => {
+    const newPageSize = size || borrowPageSize
+    setBorrowCurrentPage(page)
+    if (size) setBorrowPageSize(size)
+
+    // 重新获取数据
+    getBorrowRecords()
+  }
+
+  // 处理搜索结果分页变化
+  const handleSearchPageChange = (page: number, size?: number) => {
+    const newPageSize = size || searchPageSize
+    setSearchCurrentPage(page)
+    if (size) setSearchPageSize(size)
+
+    // 重新搜索
+    handleSearch()
+  }
+
+  // 处理标签页切换
+  const handleTabChange = (activeKey: string) => {
+    setActiveTab(activeKey)
+  }
+
+  // 处理重置
+  const handleReset = () => {
+    searchForm.resetFields()
+  }
+
+  // 处理统计周期变化
+  const handlePeriodChange = (value: string) => {
+    console.log("统计周期变化:", value)
+    // 这里可以添加获取不同周期统计数据的逻辑
+  }
+
+  // 处理取消选择
+  const handleCancelSelection = () => {
+    setSelectedRowKeys([])
+    setSelectedBooks([])
+  }
+
+  // 初始加载数据
+  useEffect(() => {
+    getBorrowRecords()
+  }, [activeTab])
 
   return (
     <ConfigProvider
@@ -334,201 +283,55 @@ const BookBorrowPage = () => {
           <Row gutter={[16, 16]}>
             <Col span={12}>
               <Row gutter={[0, 16]}>
-                <Card className="borrower-info-card">
-                  <Title
-                    level={5}
-                    style={{ color: "#F59A23", marginBottom: 8 }}
-                  >
-                    借阅者信息
-                  </Title>
-                  <Form layout="vertical">
-                    <Row gutter={[16, 0]}>
-                      <Col xs={24} sm={12}>
-                        <Form.Item label="姓名">
-                          <Input placeholder="请输入" />
-                        </Form.Item>
-                      </Col>
-                      <Col xs={24} sm={12}>
-                        <Form.Item label="联系方式">
-                          <Input placeholder="请输入" />
-                        </Form.Item>
-                      </Col>
-                    </Row>
-                  </Form>
-                </Card>
-                <Card className="book-info-card">
-                  <Title level={5} style={{ color: "#F59A23" }}>
-                    绘本信息
-                  </Title>
-                  <Form layout="vertical">
-                    <Row gutter={[16, 4]}>
-                      <Col xs={24} sm={12}>
-                        <Form.Item label="绘本编号">
-                          <Input placeholder="请输入" />
-                        </Form.Item>
-                      </Col>
-                      <Col xs={24} sm={12}>
-                        <Form.Item label="类型">
-                          <Select placeholder="请选择">
-                            <Option value="children">儿童故事</Option>
-                            <Option value="science">科普知识</Option>
-                            <Option value="art">艺术启蒙</Option>
-                          </Select>
-                        </Form.Item>
-                      </Col>
-                      <Col xs={24} sm={12}>
-                        <Form.Item label="书名">
-                          <Input placeholder="请输入" />
-                        </Form.Item>
-                      </Col>
-                      <Col xs={24} sm={12}>
-                        <Form.Item label="作者">
-                          <Input placeholder="请输入" />
-                        </Form.Item>
-                      </Col>
-                      <Col xs={24} sm={12}>
-                        <Form.Item label="借阅时间">
-                          <Input placeholder="请输入" />
-                        </Form.Item>
-                      </Col>
-                      <Col xs={24} sm={12}>
-                        <Form.Item label="预计归还时间">
-                          <Input placeholder="请输入" />
-                        </Form.Item>
-                      </Col>
-                      <Col span={24} style={{ textAlign: "right" }}>
-                        <Button
-                          type="primary"
-                          icon={<SearchOutlined />}
-                          style={{
-                            backgroundColor: "#F59A23",
-                            borderColor: "#F59A23",
-                          }}
-                        >
-                          搜索
-                        </Button>
-                      </Col>
-                    </Row>
-                  </Form>
-                </Card>
+                <Col span={24}>
+                  <BorrowerInfoCard form={form} />
+                </Col>
+                <Col span={24}>
+                  <BookSearchForm
+                    form={searchForm}
+                    onSearch={handleSearch}
+                    onReset={handleReset}
+                    loading={searchLoading}
+                  />
+                </Col>
               </Row>
             </Col>
             <Col span={12}>
-              <Card className="borrow-history-card">
-                <div className="history-header">
-                  <ClockCircleOutlined
-                    style={{ fontSize: 24, color: "#F59A23" }}
-                  />
-                  <Title level={5} style={{ margin: "0 0 0 8px" }}>
-                    借阅历史记录
-                  </Title>
-                  <Tabs defaultActiveKey="1" className="history-tabs">
-                    <TabPane tab="待归还记录" key="1"></TabPane>
-                    <TabPane tab="逾期记录" key="2"></TabPane>
-                    <TabPane tab="已归还记录" key="3"></TabPane>
-                    <TabPane tab="快速操作" key="4"></TabPane>
-                  </Tabs>
-                </div>
-
-                <div className="table-responsive">
-                  <Table
-                    columns={getHistoryColumns()}
-                    dataSource={borrowHistoryData}
-                    pagination={false}
-                    size="small"
-                    bordered
-                    scroll={{ x: "max-content", y: 49.8 * 8 }}
-                  />
-                </div>
-
-                <div className="pagination-container">
-                  <Pagination
-                    size="small"
-                    total={50}
-                    showSizeChanger={width > 768}
-                    showQuickJumper={width > 768}
-                    defaultCurrent={1}
-                    defaultPageSize={10}
-                    simple={width <= 768}
-                  />
-                </div>
-              </Card>
+              <BorrowHistoryCard
+                borrowRecords={borrowRecords}
+                borrowCurrentPage={borrowCurrentPage}
+                borrowTotal={borrowTotal}
+                borrowPageSize={borrowPageSize}
+                borrowLoading={borrowLoading}
+                activeTab={activeTab}
+                onTabChange={handleTabChange}
+                onPageChange={handleBorrowPageChange}
+                onViewDetail={handleViewDetail}
+              />
             </Col>
 
             <Col span={12}>
-              <Card className="search-results-card">
-                <div className="results-header">
-                  <Title
-                    level={5}
-                    style={{ color: "#F59A23", marginBottom: 12 }}
-                  >
-                    结果：
-                  </Title>
-                </div>
-                <div className="table-responsive">
-                  <Table
-                    columns={getSearchColumns()}
-                    dataSource={searchResultsData}
-                    pagination={false}
-                    size="small"
-                    bordered
-                    scroll={{ x: "max-content", y: 49 * 2 }}
-                  />
-                </div>
-                <div style={{ marginTop: 40, textAlign: "center" }}>
-                  <Button
-                    type="primary"
-                    style={{
-                      backgroundColor: "#F59A23",
-                      borderColor: "#F59A23",
-                      marginRight: 16,
-                      marginBottom: 8,
-                    }}
-                  >
-                    借阅
-                  </Button>
-                  <Button style={{ marginBottom: 8 }}>取 消</Button>
-                </div>
-              </Card>
+              <SearchResultsCard
+                searchResults={searchResults}
+                searchCurrentPage={searchCurrentPage}
+                searchTotal={searchTotal}
+                searchPageSize={searchPageSize}
+                searchLoading={searchLoading}
+                selectedRowKeys={selectedRowKeys}
+                onSelectChange={handleSelectChange}
+                onPageChange={handleSearchPageChange}
+                onBorrow={handleBorrow}
+                onCancel={handleCancelSelection}
+              />
             </Col>
             <Col span={12}>
-              <Card className="statistics-card">
-                <div className="statistics-header">
-                  <BarChartOutlined
-                    style={{ fontSize: 24, color: "#F59A23" }}
-                  />
-                  <Title level={5} style={{ margin: "0 0 0 8px" }}>
-                    统计分析
-                  </Title>
-                  <Select
-                  options={statisticsSelctOption}
-                  style={{ width: 120, margin: "0 24px" }}
-                  defaultValue="oneDay"
-                />
-                </div>
-
-
-
-                <div
-                  className="chart-container"
-                  style={{
-                    height: 223,
-                    background: "#f5f5f5",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    overflow: "hidden",
-                  }}
-                >
-                  <BorrowBarChart />
-                </div>
-              </Card>
+              <StatisticsCard onPeriodChange={handlePeriodChange} />
             </Col>
           </Row>
         </div>
       </div>
     </ConfigProvider>
-  );
-};
+  )
+}
 
-export default BookBorrowPage;
+export default BookBorrowPage

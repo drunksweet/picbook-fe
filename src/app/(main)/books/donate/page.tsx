@@ -9,7 +9,6 @@ import {
   Card,
   Row,
   Col,
-  Upload,
   message,
 } from "antd";
 import {
@@ -477,7 +476,6 @@ export default function BookDonation() {
             <Col span={12}>
               <div className="donation-info-section">
                 <Col span={24}>
-                  {" "}
                   <Card
                     title={
                       <div className="info-header">
