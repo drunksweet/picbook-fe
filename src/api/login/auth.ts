@@ -1,4 +1,5 @@
 import axios from "src/api/axios";
+import { setCookie } from "src/utils/cookies";
 interface LoginProps {
   userId: string;
   password: string;
@@ -47,6 +48,7 @@ export async function login({
           "authToken",
           response.data.token || response.data.data?.token || ""
         );
+        setCookie("authToken", response.data.token || response.data.data?.token || "", 7); // 设置cookie，过期时间为7天
       }
       return true;
     }

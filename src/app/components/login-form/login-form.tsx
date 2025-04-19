@@ -10,7 +10,7 @@ import {
   SafetyCertificateOutlined,
 } from "@ant-design/icons";
 import "./login-form.scss";
-import { login } from "src/api/auth";
+import { login } from "@/api/login/auth";
 interface LoginFormProps {
   onSuccess: () => void;
   verificationImg: string;

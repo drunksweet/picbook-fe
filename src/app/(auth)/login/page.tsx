@@ -4,7 +4,7 @@ import LoginForm from "@/components/login-form/login-form";
 import styles from "./page.module.scss";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { isLoggedIn } from "src/api/auth"; // 假设有这个工具函数
+import { isLoggedIn } from "@/api/login/auth"; // 假设有这个工具函数
 import axios from "src/api/axios";
 
 interface CaptchaResponse {
