@@ -19,11 +19,11 @@ interface BookSearchFormProps {
 const BookSearchForm: React.FC<BookSearchFormProps> = ({ form, onSearch, onReset, loading }) => {
   return (
     <Card className="book-search-form" variant="outlined">
-      <Title level={5} style={{ color: "#F59A23" }}>
+      <Title level={5} style={{ color: "#F59A23",marginTop: '-8px'}}>
         绘本信息
       </Title>
       <Form form={form} layout="vertical">
-        <Row gutter={[16, 4]}>
+        <Row gutter={[16, 0]}>
           <Col xs={24} sm={12}>
             <Form.Item label="绘本编号" name="book_id">
               <Input placeholder="请输入" />
@@ -38,27 +38,17 @@ const BookSearchForm: React.FC<BookSearchFormProps> = ({ form, onSearch, onReset
               </Select>
             </Form.Item>
           </Col>
-          <Col xs={24} sm={12}>
+          <Col xs={24} sm={12} style={{marginTop: '-16px'}}>
             <Form.Item label="书名" name="name">
               <Input placeholder="请输入" />
             </Form.Item>
           </Col>
-          <Col xs={24} sm={12}>
+          <Col xs={24} sm={12} style={{marginTop: '-16px'}}>
             <Form.Item label="作者" name="author">
               <Input placeholder="请输入" />
             </Form.Item>
           </Col>
-          <Col xs={24} sm={12}>
-            <Form.Item label="借阅时间">
-              <DatePicker style={{ width: "100%" }} />
-            </Form.Item>
-          </Col>
-          <Col xs={24} sm={12}>
-            <Form.Item label="预计归还时间">
-              <DatePicker style={{ width: "100%" }} />
-            </Form.Item>
-          </Col>
-          <Col span={24} style={{ textAlign: "right" }}>
+          <Col span={24} style={{ textAlign: "right",marginTop: '-16px' }}>
             <Space>
               <Button type="primary" icon={<RedoOutlined />} onClick={onReset}>
                 重置

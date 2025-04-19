@@ -45,9 +45,9 @@ const BorrowBarChart = () => {
         },
       },
       grid: {
-        left: "3%",
+        left: "4%",
         right: "4%",
-        bottom: "3%",
+        bottom: "5%",
         containLabel: true,
       },
       xAxis: {
@@ -67,7 +67,7 @@ const BorrowBarChart = () => {
         {
           name: "借阅数量",
           type: "bar",
-          barWidth: "60%",
+          barWidth: "80%",
           data: chartData.map((item, index) => {
             // 为不同类别设置不同颜色
             const colors = [

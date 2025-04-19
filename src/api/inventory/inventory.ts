@@ -51,17 +51,6 @@ export const fetchInventoryData = async (params: SearchParams) => {
   }
 
   try {
-    // 从localStorage获取认证token
-    const authToken = localStorage.getItem("authToken");
-    if (!authToken) {
-      message.error("认证失败，请重新登录");
-      return {
-        success: false,
-        error: "认证失败",
-        needLogin: true,
-      };
-    }
-
     // 确保请求参数中包含page和page_size
     const requestParams = {
       ...params,
@@ -71,9 +60,6 @@ export const fetchInventoryData = async (params: SearchParams) => {
 
     const res = await axios.get<ApiResponse>("/v1/book/stock/fuzzy_query", {
       params: requestParams,
-      headers: {
-        Authorization: authToken,
-      },
     });
 
     if (res.data.code === 200) {
@@ -117,21 +103,9 @@ export const fetchInventoryData = async (params: SearchParams) => {
  */
 export const deleteInventoryItem = async (bookId: string) => {
   try {
-    // 从localStorage获取认证token
-    const authToken = localStorage.getItem("authToken")
-    if (!authToken) {
-      message.error("认证失败，请重新登录")
-      return {
-        success: false,
-        error: "认证失败",
-        needLogin: true,
-      }
-    }
+
 
     const res = await axios.delete(`/v1/book/stock/delete/${bookId}`, {
-      headers: {
-        Authorization: authToken,
-      },
     })
 
     if (res.data.code === 200) {
@@ -162,21 +136,10 @@ export const deleteInventoryItem = async (bookId: string) => {
  */
 export const updateInventoryItem = async (bookId: string, data: Partial<InventoryItem>) => {
   try {
-    // 从localStorage获取认证token
-    const authToken = localStorage.getItem("authToken")
-    if (!authToken) {
-      message.error("认证失败，请重新登录")
-      return {
-        success: false,
-        error: "认证失败",
-        needLogin: true,
-      }
-    }
+
 
     const res = await axios.put(`/v1/book/stock/update/${bookId}`, data, {
-      headers: {
-        Authorization: authToken,
-      },
+
     })
 
     if (res.data.code === 200) {

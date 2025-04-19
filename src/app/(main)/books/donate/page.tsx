@@ -10,6 +10,7 @@ import {
   Row,
   Col,
   message,
+  Space,
 } from "antd";
 import {
   UploadOutlined,
@@ -338,76 +339,73 @@ export default function BookDonation() {
         <div className="page-content">
           <Row gutter={[12, 16]}>
             <Col span={12}>
+              {/* <Card>
+                <div className="donation-form-section"> */}
               <Card>
-                <div className="donation-form-section">
-                  <Card>
-                    <div className="section-header">
-                      <h2>捐赠信息录入</h2>
-                    </div>
-                    <Form form={form} layout="vertical">
-                      <Row gutter={16}>
-                        <Col span={8}>
-                          <Form.Item label="捐赠人姓名" name="donorName">
-                            <Input placeholder="请输入" />
-                          </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                          <Form.Item label="联系方式" name="contact">
-                            <Input placeholder="请输入" />
-                          </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                          <Form.Item label="捐赠类型" name="donationType">
-                            <Input placeholder="请输入" />
-                          </Form.Item>
-                        </Col>
-                      </Row>
-                    </Form>
-                  </Card>
+                <div className="section-header">
+                  <h2>捐赠信息录入</h2>
+                </div>
+                <Form form={form} layout="vertical">
+                  <Row gutter={16}>
+                    <Col span={8}>
+                      <Form.Item label="捐赠人姓名" name="donorName">
+                        <Input placeholder="请输入" />
+                      </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                      <Form.Item label="联系方式" name="contact">
+                        <Input placeholder="请输入" />
+                      </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                      <Form.Item label="捐赠类型" name="donationType">
+                        <Input placeholder="请输入" />
+                      </Form.Item>
+                    </Col>
+                  </Row>
+                </Form>
+              </Card>
 
-                  <Card style={{ marginTop: "8px" }}>
-                    <div className="section-header book-info-header">
-                      <h2>绘本信息</h2>
-                    </div>
-                    <Form form={bookForm} layout="vertical">
-                      <Row gutter={16}>
-                        <Col span={8}>
-                          <Form.Item label="书名" name="bookName">
-                            <Input placeholder="请输入" />
-                          </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                          <Form.Item label="作者" name="author">
-                            <Input placeholder="请输入" />
-                          </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                          <Form.Item label="出版社" name="publisher">
-                            <Input placeholder="请输入" />
-                          </Form.Item>
-                        </Col>
-                      </Row>
-
-                      <Row gutter={16}>
-                        <Col span={8}>
-                          <Form.Item label="类别" name="category">
-                            <Input placeholder="请输入" />
-                          </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                          <Form.Item label="数量" name="quantity">
-                            <Input placeholder="请输入" />
-                          </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                          <Form.Item label="是否全新" name="isNew">
-                            <Input placeholder="请输入" />
-                          </Form.Item>
-                        </Col>
-                      </Row>
-                    </Form>
-
-                    <div className="add-to-library">
+              <Card style={{ marginTop: "8px" }}>
+                <div className="section-header book-info-header">
+                  <h2>绘本信息</h2>
+                </div>
+                <Form form={bookForm} layout="vertical">
+                  <Row gutter={16}>
+                    <Col span={12}>
+                      <Form.Item label="书名" name="bookName">
+                        <Input placeholder="请输入" />
+                      </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                      <Form.Item label="作者" name="author">
+                        <Input placeholder="请输入" />
+                      </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                      <Form.Item label="出版社" name="publisher">
+                        <Input placeholder="请输入" />
+                      </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                      <Form.Item label="类别" name="category">
+                        <Input placeholder="请输入" />
+                      </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                      <Form.Item label="数量" name="quantity">
+                        <Input placeholder="请输入" />
+                      </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                      <Form.Item label="是否全新" name="isNew">
+                        <Input placeholder="请输入" />
+                      </Form.Item>
+                    </Col>
+                    <Col
+                      span={24}
+                      style={{ textAlign: "right", marginTop: "-8px" }}
+                    >
                       <Button
                         type="primary"
                         onClick={handleAddToLibrary}
@@ -415,46 +413,46 @@ export default function BookDonation() {
                       >
                         添加绘本全仓库
                       </Button>
-                    </div>
-                  </Card>
+                    </Col>
+                  </Row>
+                </Form>
 
-                  <Card style={{ marginTop: "8px" }}>
-                    <div className="donation-value-section">
-                      <div className="section-header">
-                        <h2 className="gift-icon">捐赠激励</h2>
-                      </div>
+                <div className="add-to-library"></div>
+              </Card>
 
-                      <Form form={valueForm} layout="vertical">
-                        <Row gutter={16}>
-                          <Col span={12}>
-                            <Form.Item label="书本估价：" name="bookValue">
-                              <Input placeholder="请输入" />
-                            </Form.Item>
-                          </Col>
-                          <Col span={12}>
-                            <Form.Item
-                              label="当前会员等级："
-                              name="memberLevel"
-                            >
-                              <Input placeholder="请输入" />
-                            </Form.Item>
-                          </Col>
-                        </Row>
+              <Card style={{ marginTop: "8px" }}>
+                <div className="donation-value-section">
+                  <div className="section-header">
+                    <h2 className="gift-icon">捐赠激励</h2>
+                  </div>
 
-                        <Row gutter={16}>
-                          <Col span={12}>
-                            <Form.Item label="可获积分：" name="points">
-                              <Input placeholder="请输入" />
-                            </Form.Item>
-                          </Col>
-                          <Col span={12}>
-                            <Form.Item label="当前时长：" name="duration">
-                              <Input placeholder="请输入" />
-                            </Form.Item>
-                          </Col>
-                        </Row>
+                  <Form form={valueForm} layout="vertical">
+                    <Row gutter={16}>
+                      <Col span={12}>
+                        <Form.Item label="书本估价：" name="bookValue">
+                          <Input placeholder="请输入" />
+                        </Form.Item>
+                      </Col>
+                      <Col span={12}>
+                        <Form.Item label="当前会员等级：" name="memberLevel">
+                          <Input placeholder="请输入" />
+                        </Form.Item>
+                      </Col>
+                    </Row>
 
-                        <div className="form-buttons">
+                    <Row gutter={16}>
+                      <Col span={12}>
+                        <Form.Item label="可获积分：" name="points">
+                          <Input placeholder="请输入" />
+                        </Form.Item>
+                      </Col>
+                      <Col span={12}>
+                        <Form.Item label="当前时长：" name="duration">
+                          <Input placeholder="请输入" />
+                        </Form.Item>
+                      </Col>
+                      <Col span={24} style={{ textAlign: "right",marginTop: '-8px' }}>
+                        <Space>
                           <Button
                             type="primary"
                             onClick={handleSubmit}
@@ -465,12 +463,14 @@ export default function BookDonation() {
                           <Button onClick={handleCancel} className="cancel-btn">
                             取消
                           </Button>
-                        </div>
-                      </Form>
-                    </div>
-                  </Card>
+                        </Space>
+                      </Col>
+                    </Row>
+                  </Form>
                 </div>
               </Card>
+              {/* </div>
+              </Card> */}
             </Col>
 
             <Col span={12}>
@@ -489,7 +489,7 @@ export default function BookDonation() {
                       <Button type="primary" className="report-btn">
                         生成捐赠报告
                       </Button>
-                      <Button className="reload-btn">重置</Button>
+                      <Button type="primary" className="reload-btn">重置</Button>
                       <Button type="primary" className="quick-btn">
                         快捷操作
                       </Button>

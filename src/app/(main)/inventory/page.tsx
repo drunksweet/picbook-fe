@@ -9,7 +9,7 @@ export default function InventoryPage() {
   return (
     <>
       <Banner title="库存管理"/>
-      <div style={{ padding: 0 }}>
+      <div>
         <InventoryManagement />
       </div>
     </>

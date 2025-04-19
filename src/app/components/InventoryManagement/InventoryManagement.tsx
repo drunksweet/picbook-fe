@@ -139,12 +139,6 @@ export default function InventoryManagement() {
       } else {
         message.error(result.error);
 
-        // 如果需要登录，跳转到登录页
-        if (result.needLogin) {
-          router.push("/login");
-          return;
-        }
-
         // 如果API返回错误，使用模拟数据
         const mockData = generateMockData(pageSize);
         setData(mockData.items);
@@ -263,10 +257,6 @@ export default function InventoryManagement() {
           } else {
             message.error(result.error || "删除失败");
 
-            // 如果需要登录，跳转到登录页
-            if (result.needLogin) {
-              router.push("/login");
-            }
           }
         } catch (error) {
           console.error("删除绘本时出错:", error);
@@ -285,7 +275,7 @@ export default function InventoryManagement() {
         },
       }}
     >
-      <div className="inventory-container" style={{ paddingTop: "10px" }}>
+      <div className="inventory-container">
         <Card title="信息检索" variant="outlined">
           <Form form={form} layout="inline">
             <Space size={"small"}>

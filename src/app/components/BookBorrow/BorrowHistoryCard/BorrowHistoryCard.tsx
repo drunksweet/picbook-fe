@@ -107,7 +107,7 @@ const BorrowHistoryCard: React.FC<BorrowHistoryCardProps> = ({
             total={borrowTotal}
             pageSize={borrowPageSize}
             onPageChange={onPageChange}
-            scroll={{ x: "max-content", y: 49.8 * 8 }}
+            scroll={{ x: "max-content", y: 49 * 10 }}
             tableProps={{ loading: borrowLoading }}
           />
         ) : (
