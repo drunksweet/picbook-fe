@@ -26,9 +26,7 @@ import "./page.scss";
 
 const BookBorrowPage = () => {
   const { message, modal } = App.useApp();
-  const [form] = Form.useForm();
   const [searchForm] = Form.useForm();
-  const router = useRouter();
 
   // 借阅记录状态
   const [borrowRecords, setBorrowRecords] = useState<BorrowRecordItem[]>([]);
@@ -46,10 +44,6 @@ const BookBorrowPage = () => {
   const [searchTotal, setSearchTotal] = useState<number>(0);
   const [searchTotalPages, setSearchTotalPages] = useState<number>(0);
   const [searchLoading, setSearchLoading] = useState<boolean>(false);
-
-
-  // 用户信息状态
-  const [userId, setUserId] = useState<string>("");
 
   // 获取借阅记录✅
   const getBorrowRecords = async () => {
@@ -144,40 +138,6 @@ const BookBorrowPage = () => {
     }
   };
 
-  // 处理借阅
-  // const handleBorrow = async () => {
-  //   if (selectedRowKeys.length === 0) {
-  //     message.warning("请选择要借阅的图书")
-  //     return
-  //   }
-
-  //   const userInfo = form.getFieldsValue()
-  //   if (!userInfo.user_name || !userInfo.contact) {
-  //     message.warning("请填写借阅者信息")
-  //     return
-  //   }
-
-  //   try {
-  //     // 这里应该调用借阅API
-  //     // 简化处理，实际应该循环处理多本书
-  //     const selectedBook = selectedBooks[0]
-  //     const result = await borrowBook(selectedBook.copy_id, userId || "mock_user_id")
-
-  //     if (result.success) {
-  //       message.success("借阅成功")
-  //       setSelectedRowKeys([])
-  //       setSelectedBooks([])
-  //       // 刷新借阅记录
-  //       getBorrowRecords()
-  //     } else {
-  //       message.error(result.error || "借阅失败")
-  //     }
-  //   } catch (error) {
-  //     console.error("借阅图书失败:", error)
-  //     message.error("借阅图书失败，请稍后重试")
-  //   }
-  // }
-
   // 处理查看详情✅
   const handleViewDetail = (record: BorrowRecordItem) => {
     const statusEtoCMap: Record<BorrowRecordItem["return_status"], string> = {
@@ -200,12 +160,6 @@ const BookBorrowPage = () => {
       ),
     });
   };
-
-  // // 处理表格选择变化
-  // const handleSelectChange = (newSelectedRowKeys: React.Key[], selectedRows: BookItem[]) => {
-  //   setSelectedRowKeys(newSelectedRowKeys)
-  //   setSelectedBooks(selectedRows)
-  // }
 
   // 处理借阅记录分页变化
   const handleBorrowPageChange = (page: number, size?: number) => {
@@ -247,6 +201,7 @@ const BookBorrowPage = () => {
   // 初始加载数据
   useEffect(() => {
     getBorrowRecords();
+    handleSearch();
   }, [activeTab]);
 
   return (

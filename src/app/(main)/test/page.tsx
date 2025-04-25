@@ -1,4 +1,4 @@
-import EChartsPie from "@components/echarts/pie"
+import EChartsPie from "@/components/echarts/home/pie"
 import EChartsBar from "@/components/echarts/bar"
 import Dashboard from "@/components/dashboard/dashboard"
 import InventoryManagement from "@/components/InventoryManagement/InventoryManagement"

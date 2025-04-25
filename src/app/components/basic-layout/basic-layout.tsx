@@ -26,8 +26,8 @@ const routeMap: { [key: string]: string } = {
   "3-1": "/books/borrow",
   "3-2": "/books/donate",
   "4": "/vip",
-  "5": "activity",
-  "6": "volunteer",
+  "5": "/activity",
+  "6": "/volunteer",
 };
 
 // 更新后的菜单项配置

@@ -5,13 +5,6 @@ import { MemberChartsContainer } from "@/components/echarts/vip/MemberCharts/Mem
 import "./MemberTab.scss";
 
 export default function MemberTab() {
-  const chartTypes = [
-    { key: "pie", label: "条形图" },
-    { key: "bar", label: "柱状图" },
-    { key: "line", label: "折线图" },
-    { key: "radar", label: "环形图" },
-  ];
-
   return (
     <div className="chartOneContainer">
       <Tabs

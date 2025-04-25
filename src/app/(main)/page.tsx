@@ -2,8 +2,8 @@
 import React from "react";
 import "./home.sass";
 import { Button, ConfigProvider } from "antd";
-import EChartsPie from "@components/echarts/pie";
-import EChartsPlot from "@/components/echarts/plot";
+import EChartsPie from "@/components/echarts/home/pie";
+import EChartsPlot from "@/components/echarts/home/plot";
 import ScrollView from "@/components/scrollview/scrollview";
 import { useRouter } from "next/navigation";
 import Dashboard from "@/components/dashboard/dashboard"

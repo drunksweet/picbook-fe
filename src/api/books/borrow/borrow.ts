@@ -26,8 +26,8 @@ export interface CopyIdResponse {
 
 // 借阅请求参数
 export interface BorrowRequestParams {
-  book_id: string | number;
-  borrower_id: string | number;
+  book_id: number;
+  borrower_id: number;
   copy_id: number;
   expected_return_time: string;
 }
@@ -121,7 +121,7 @@ export const getAvailableCopies = async (params: GetAvailableCopiesParams) => {
       };
     }
 
-    const res = await axios.get<CopyIdResponse>("/v1/book/available_copies", {
+    const res = await axios.get<CopyIdResponse>("/v1/book/borrow/get_available", {
       params,
       headers: {
         Authorization: authToken,
@@ -320,70 +320,6 @@ export const searchBooks = async (params: SearchBookParams) => {
     };
   }
 };
-
-// /**
-//  * 借阅图书
-//  * @param copyId 副本ID
-//  * @param userId 用户ID
-//  * @returns 处理后的响应数据
-//  */
-// export const borrowBook = async (copyId: string, userId: string) => {
-//   try {
-//     const res = await axios.post("/v1/book/borrow", {
-//       copy_id: copyId,
-//       user_id: userId,
-//     });
-
-//     if (res.data.code === 200) {
-//       return {
-//         success: true,
-//         message: "借阅成功",
-//       };
-//     } else {
-//       return {
-//         success: false,
-//         error: res.data.msg || "借阅失败",
-//       };
-//     }
-//   } catch (error) {
-//     console.error("借阅图书失败:", error);
-//     return {
-//       success: false,
-//       error: "借阅图书失败，请稍后重试",
-//     };
-//   }
-// };
-
-// /**
-//  * 归还图书
-//  * @param copyId 副本ID
-//  * @returns 处理后的响应数据
-//  */
-// export const returnBook = async (copyId: string) => {
-//   try {
-//     const res = await axios.post("/v1/book/return", {
-//       copy_id: copyId,
-//     });
-
-//     if (res.data.code === 200) {
-//       return {
-//         success: true,
-//         message: "归还成功",
-//       };
-//     } else {
-//       return {
-//         success: false,
-//         error: res.data.msg || "归还失败",
-//       };
-//     }
-//   } catch (error) {
-//     console.error("归还图书失败:", error);
-//     return {
-//       success: false,
-//       error: "归还图书失败，请稍后重试",
-//     };
-//   }
-// };
 
 // 生成模拟借阅记录数据
 export const generateMockBorrowRecords = (pageSize: number) => {

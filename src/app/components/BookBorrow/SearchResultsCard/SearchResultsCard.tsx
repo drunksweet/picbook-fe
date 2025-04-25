@@ -29,9 +29,7 @@ const SearchResultsCard: React.FC<SearchResultsCardProps> = ({
   searchTotal,
   searchPageSize,
   searchLoading,
-  // selectedRowKeys,
   onPageChange,
-  // onCancel,
 }) => {
   const { message } = App.useApp();
 

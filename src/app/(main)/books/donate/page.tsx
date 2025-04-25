@@ -1,336 +1,241 @@
-"use client";
+"use client"
+
+import { useState, useEffect } from "react"
+import { Form, Input, Button, Tag, Card, Row, Col, Space, App } from "antd"
 import {
-  Form,
-  Input,
-  Button,
-  Table,
-  Tag,
-  Pagination,
-  Card,
-  Row,
-  Col,
-  message,
-  Space,
-} from "antd";
-import {
-  UploadOutlined,
   TrophyOutlined,
   MessageOutlined,
-} from "@ant-design/icons";
-import Banner from "@/components/banner";
-import type { ColumnsType } from "antd/es/table";
-import "./page.scss";
+  ReloadOutlined,
+  FileTextOutlined,
+  ThunderboltOutlined,
+} from "@ant-design/icons"
+import Banner from "@/components/banner"
+import TangTable from "@/components/TangTable/TangTable"
+import type { ColumnsType } from "antd/es/table"
+import {
+  fetchDonationRecords,
+  fetchRankingStatistics,
+  generateMockDonationRecords,
+  generateMockRankingStatistics,
+  type DonationRecord,
+  type RankingRecord,
+} from "@/api/books/donate/donate"
+import "./page.scss"
 
-interface DonationRecord {
-  key: string;
-  id: number;
-  date: string;
-  name: string;
-  contact: string;
-  bookName: string;
-  quantity: number;
-  status: string;
+interface ProcessedDonationRecord extends DonationRecord {
+  key: string
+  index: number
+  status?: string // 添加可选的状态字段
 }
 
-interface RankingRecord {
-  key: string;
-  rank: number;
-  name: string;
-  donationCount: number;
-  bookCount: number;
-  totalValue: number;
-  averageValue: number;
-  lastDonationDate: string;
+interface ProcessedRankingRecord extends RankingRecord {
+  key: string
+  rank: number
+  totalValue?: number // 添加可选的总价值字段
+  averageValue?: number // 添加可选的平均价值字段
 }
 
 export default function BookDonation() {
-  const [form] = Form.useForm();
-  const [bookForm] = Form.useForm();
-  const [valueForm] = Form.useForm();
+  const { message } = App.useApp()
+  const [form] = Form.useForm()
+  const [bookForm] = Form.useForm()
+  const [valueForm] = Form.useForm()
 
-  // Mock data for the donation records
-  const donationData: DonationRecord[] = [
-    {
-      key: "1",
-      id: 1,
-      date: "2025-01-05",
-      name: "张三",
-      contact: "18186723351",
-      bookName: "书名1",
-      quantity: 1,
-      status: "在库",
-    },
-    {
-      key: "2",
-      id: 2,
-      date: "2025-01-05",
-      name: "李明",
-      contact: "15442213678",
-      bookName: "书名2",
-      quantity: 2,
-      status: "售卖",
-    },
-    {
-      key: "3",
-      id: 3,
-      date: "2025-01-05",
-      name: "王五",
-      contact: "11223345674",
-      bookName: "书名3",
-      quantity: 1,
-      status: "在库",
-    },
-    {
-      key: "4",
-      id: 4,
-      date: "2025-01-05",
-      name: "赵明",
-      contact: "13398876543",
-      bookName: "书名4",
-      quantity: 1,
-      status: "在库",
-    },
-    {
-      key: "5",
-      id: 5,
-      date: "2025-01-05",
-      name: "刘金",
-      contact: "12234556788",
-      bookName: "书名5",
-      quantity: 1,
-      status: "借出",
-    },
-    {
-      key: "6",
-      id: 6,
-      date: "2025-01-05",
-      name: "许校然",
-      contact: "18823445551",
-      bookName: "书名6",
-      quantity: 3,
-      status: "借出",
-    },
-    {
-      key: "7",
-      id: 7,
-      date: "2025-01-05",
-      name: "杨洪",
-      contact: "15542212347",
-      bookName: "书名7",
-      quantity: 5,
-      status: "借出",
-    },
-    {
-      key: "8",
-      id: 8,
-      date: "2025-01-05",
-      name: "邓荣",
-      contact: "17765527890",
-      bookName: "书名8",
-      quantity: 1,
-      status: "借出",
-    },
-    {
-      key: "9",
-      id: 9,
-      date: "2025-01-05",
-      name: "田静",
-      contact: "18002234578",
-      bookName: "书名9",
-      quantity: 2,
-      status: "借出",
-    },
-    {
-      key: "10",
-      id: 10,
-      date: "2025-01-05",
-      name: "邓小王",
-      contact: "15562290876",
-      bookName: "书名10",
-      quantity: 1,
-      status: "借出",
-    },
-  ];
+  // 捐赠记录状态
+  const [donationRecords, setDonationRecords] = useState<ProcessedDonationRecord[]>([])
+  const [donationCurrentPage, setDonationCurrentPage] = useState<number>(1)
+  const [donationPageSize, setDonationPageSize] = useState<number>(10)
+  const [donationTotal, setDonationTotal] = useState<number>(0)
+  const [donationLoading, setDonationLoading] = useState<boolean>(false)
 
-  // Mock data for the ranking statistics
-  const rankingData: RankingRecord[] = [
-    {
-      key: "1",
-      rank: 1,
-      name: "张三",
-      donationCount: 10,
-      bookCount: 20,
-      totalValue: 500,
-      averageValue: 50,
-      lastDonationDate: "2025-01-15",
-    },
-    {
-      key: "2",
-      rank: 2,
-      name: "李明",
-      donationCount: 8,
-      bookCount: 15,
-      totalValue: 400,
-      averageValue: 50,
-      lastDonationDate: "2025-01-10",
-    },
-    {
-      key: "3",
-      rank: 3,
-      name: "王五",
-      donationCount: 6,
-      bookCount: 12,
-      totalValue: 300,
-      averageValue: 50,
-      lastDonationDate: "2025-01-05",
-    },
-    {
-      key: "4",
-      rank: 4,
-      name: "赵明",
-      donationCount: 4,
-      bookCount: 8,
-      totalValue: 200,
-      averageValue: 50,
-      lastDonationDate: "2025-01-01",
-    },
-    {
-      key: "5",
-      rank: 5,
-      name: "孙七",
-      donationCount: 2,
-      bookCount: 5,
-      totalValue: 100,
-      averageValue: 50,
-      lastDonationDate: "2024-12-31",
-    },
-    {
-      key: "6",
-      rank: 6,
-      name: "周八",
-      donationCount: 15,
-      bookCount: 25,
-      totalValue: 600,
-      averageValue: 40,
-      lastDonationDate: "2025-01-18",
-    },
-    {
-      key: "7",
-      rank: 7,
-      name: "吴九",
-      donationCount: 12,
-      bookCount: 22,
-      totalValue: 550,
-      averageValue: 45.83,
-      lastDonationDate: "2025-01-12",
-    },
-    {
-      key: "8",
-      rank: 8,
-      name: "郑十",
-      donationCount: 9,
-      bookCount: 18,
-      totalValue: 450,
-      averageValue: 50,
-      lastDonationDate: "2025-01-08",
-    },
-    {
-      key: "9",
-      rank: 9,
-      name: "钱一",
-      donationCount: 7,
-      bookCount: 14,
-      totalValue: 350,
-      averageValue: 50,
-      lastDonationDate: "2025-01-03",
-    },
-    {
-      key: "10",
-      rank: 10,
-      name: "孙二",
-      donationCount: 5,
-      bookCount: 10,
-      totalValue: 250,
-      averageValue: 50,
-      lastDonationDate: "2025-01-02",
-    },
-  ];
+  // 排名统计状态
+  const [rankingRecords, setRankingRecords] = useState<ProcessedRankingRecord[]>([])
+  const [rankingLoading, setRankingLoading] = useState<boolean>(false)
 
-  const donationColumns: ColumnsType<DonationRecord> = [
-    { title: "序号", dataIndex: "id", key: "id", width: 60 },
-    { title: "捐赠日期", dataIndex: "date", key: "date", width: 120 },
-    { title: "姓名", dataIndex: "name", key: "name", width: 100 },
-    { title: "联系方式", dataIndex: "contact", key: "contact", width: 120 },
-    { title: "书名", dataIndex: "bookName", key: "bookName", width: 100 },
-    { title: "捐赠数量", dataIndex: "quantity", key: "quantity", width: 80 },
+  // 捐赠记录表格列配置
+  const donationColumns: ColumnsType<ProcessedDonationRecord> = [
+    { title: "序号", dataIndex: "index", key: "index", align: "center", width: 60 },
+    { title: "捐赠日期", dataIndex: "donate_time", key: "donate_time", align: "center", width: 120 },
+    { title: "姓名", dataIndex: "user_name", key: "user_name", align: "center", width: 100 },
+    { title: "联系方式", dataIndex: "phone", key: "phone", align: "center", width: 120 },
+    { title: "书名", dataIndex: "book_name", key: "book_name", align: "center", width: 100 },
+    { title: "捐赠数量", dataIndex: "donate_num", key: "donate_num", align: "center", width: 80 },
     {
       title: "状态",
       dataIndex: "status",
       key: "status",
+      align: "center",
       width: 80,
       render: (status) => {
-        let color = "green";
+        let color = "green"
         if (status === "借出") {
-          color = "red";
+          color = "red"
         } else if (status === "售卖") {
-          color = "blue";
+          color = "blue"
         }
-        return <Tag color={color}>{status}</Tag>;
+        return <Tag color={color}>{status || "在库"}</Tag>
       },
     },
     {
       title: "操作",
       key: "action",
+      align: "center",
       width: 80,
       render: () => <a className="detail-link">详情</a>,
     },
-  ];
+  ]
 
-  const rankingColumns: ColumnsType<RankingRecord> = [
-    { title: "排名", dataIndex: "rank", key: "rank", width: 60 },
-    { title: "捐赠人", dataIndex: "name", key: "name", width: 100 },
-    {
-      title: "捐赠次数",
-      dataIndex: "donationCount",
-      key: "donationCount",
-      width: 100,
-    },
-    { title: "捐赠数量", dataIndex: "bookCount", key: "bookCount", width: 100 },
+  // 排名统计表格列配置
+  const rankingColumns: ColumnsType<ProcessedRankingRecord> = [
+    { title: "排名", dataIndex: "rank", key: "rank", align: "center", width: 60 },
+    { title: "捐赠人", dataIndex: "user_name", key: "user_name", align: "center", width: 100 },
+    { title: "捐赠次数", dataIndex: "donate_times", key: "donate_times", align: "center", width: 100 },
+    { title: "捐赠数量", dataIndex: "donate_num", key: "donate_num", align: "center", width: 100 },
     {
       title: "捐赠总价值(元)",
       dataIndex: "totalValue",
       key: "totalValue",
+      align: "center",
       width: 150,
+      render: (_, record) => record.totalValue || Math.floor(record.donate_num * 50),
     },
     {
       title: "平均捐赠价值(元)",
       dataIndex: "averageValue",
       key: "averageValue",
+      align: "center",
       width: 150,
+      render: (_, record) =>
+        record.averageValue || Math.floor((record.totalValue || record.donate_num * 50) / record.donate_times),
     },
     {
       title: "最近一次捐赠日期",
-      dataIndex: "lastDonationDate",
-      key: "lastDonationDate",
+      dataIndex: "updated_at",
+      key: "updated_at",
+      align: "center",
       width: 150,
     },
-  ];
+  ]
 
+  // 获取捐赠记录
+  const getDonationRecords = async (page: number, pageSize: number) => {
+    setDonationLoading(true)
+    try {
+      const result = await fetchDonationRecords(page, pageSize)
+
+      if (result.success) {
+        setDonationRecords(result.data!.items)
+        setDonationCurrentPage(result.data!.currentPage)
+        setDonationTotal(result.data!.total)
+      } else {
+        message.error(result.error || "获取捐赠记录失败")
+
+        // 使用模拟数据
+        const mockData = generateMockDonationRecords(page, pageSize)
+        setDonationRecords(mockData.items)
+        setDonationCurrentPage(mockData.currentPage)
+        setDonationTotal(mockData.total)
+      }
+    } catch (error) {
+      console.error("获取捐赠记录失败:", error)
+      message.error("获取捐赠记录失败，请稍后重试")
+
+      // 使用模拟数据
+      const mockData = generateMockDonationRecords(page, pageSize)
+      setDonationRecords(mockData.items)
+      setDonationCurrentPage(mockData.currentPage)
+      setDonationTotal(mockData.total)
+    } finally {
+      setDonationLoading(false)
+    }
+  }
+
+  // 获取排名统计
+  const getRankingStatistics = async (top: number) => {
+    setRankingLoading(true)
+    try {
+      const result = await fetchRankingStatistics(top)
+
+      if (result.success) {
+        setRankingRecords(result.data!)
+      } else {
+        message.error(result.error || "获取排名统计失败")
+
+        // 如果需要登录，跳转到登录页
+        if (result.needLogin) {
+          // router.push("/login")
+          return
+        }
+
+        // 使用模拟数据
+        const mockData = generateMockRankingStatistics(top)
+        setRankingRecords(mockData)
+      }
+    } catch (error) {
+      console.error("获取排名统计失败:", error)
+      message.error("获取排名统计失败，请稍后重试")
+
+      // 使用模拟数据
+      const mockData = generateMockRankingStatistics(top)
+      setRankingRecords(mockData)
+    } finally {
+      setRankingLoading(false)
+    }
+  }
+
+  // 处理捐赠记录分页变化
+  const handleDonationPageChange = (page: number, pageSize?: number) => {
+    const newPageSize = pageSize || donationPageSize
+    setDonationCurrentPage(page)
+    if (pageSize) setDonationPageSize(pageSize)
+    getDonationRecords(page, newPageSize)
+  }
+
+  // 处理表单提交
   const handleSubmit = () => {
-    message.success("添加成功");
-    form.resetFields();
-    bookForm.resetFields();
-  };
+    message.success("添加成功")
+    form.resetFields()
+    bookForm.resetFields()
+    valueForm.resetFields()
 
+    // 刷新数据
+    getDonationRecords(donationCurrentPage, donationPageSize)
+    getRankingStatistics(10)
+  }
+
+  // 处理取消
   const handleCancel = () => {
-    form.resetFields();
-    bookForm.resetFields();
-    valueForm.resetFields();
-  };
+    form.resetFields()
+    bookForm.resetFields()
+    valueForm.resetFields()
+  }
 
+  // 处理添加到绘本全仓库
   const handleAddToLibrary = () => {
-    message.success("已添加到绘本全仓库");
-  };
+    message.success("已添加到绘本全仓库")
+  }
+
+  // 处理重置
+  const handleReset = () => {
+    getDonationRecords(1, donationPageSize)
+    setDonationCurrentPage(1)
+  }
+
+  // 处理生成捐赠报告
+  const handleGenerateReport = () => {
+    message.success("正在生成捐赠报告...")
+  }
+
+  // 处理快捷操作
+  const handleQuickAction = () => {
+    message.success("快捷操作功能开发中...")
+  }
+
+  // 初始加载数据
+  useEffect(() => {
+    getDonationRecords(donationCurrentPage, donationPageSize)
+    getRankingStatistics(10)
+  }, [])
 
   return (
     <>
@@ -339,8 +244,6 @@ export default function BookDonation() {
         <div className="page-content">
           <Row gutter={[12, 16]}>
             <Col span={12}>
-              {/* <Card>
-                <div className="donation-form-section"> */}
               <Card>
                 <div className="section-header">
                   <h2>捐赠信息录入</h2>
@@ -348,12 +251,20 @@ export default function BookDonation() {
                 <Form form={form} layout="vertical">
                   <Row gutter={16}>
                     <Col span={8}>
-                      <Form.Item label="捐赠人姓名" name="donorName">
+                      <Form.Item
+                        label="捐赠人姓名"
+                        name="donorName"
+                        rules={[{ required: true, message: "请输入捐赠人姓名" }]}
+                      >
                         <Input placeholder="请输入" />
                       </Form.Item>
                     </Col>
                     <Col span={8}>
-                      <Form.Item label="联系方式" name="contact">
+                      <Form.Item
+                        label="联系方式"
+                        name="contact"
+                        rules={[{ required: true, message: "请输入联系方式" }]}
+                      >
                         <Input placeholder="请输入" />
                       </Form.Item>
                     </Col>
@@ -373,7 +284,7 @@ export default function BookDonation() {
                 <Form form={bookForm} layout="vertical">
                   <Row gutter={16}>
                     <Col span={12}>
-                      <Form.Item label="书名" name="bookName">
+                      <Form.Item label="书名" name="bookName" rules={[{ required: true, message: "请输入书名" }]}>
                         <Input placeholder="请输入" />
                       </Form.Item>
                     </Col>
@@ -393,7 +304,7 @@ export default function BookDonation() {
                       </Form.Item>
                     </Col>
                     <Col span={12}>
-                      <Form.Item label="数量" name="quantity">
+                      <Form.Item label="数量" name="quantity" rules={[{ required: true, message: "请输入数量" }]}>
                         <Input placeholder="请输入" />
                       </Form.Item>
                     </Col>
@@ -402,22 +313,13 @@ export default function BookDonation() {
                         <Input placeholder="请输入" />
                       </Form.Item>
                     </Col>
-                    <Col
-                      span={24}
-                      style={{ textAlign: "right", marginTop: "-8px" }}
-                    >
-                      <Button
-                        type="primary"
-                        onClick={handleAddToLibrary}
-                        className="add-library-btn"
-                      >
+                    <Col span={24} style={{ textAlign: "right", marginTop: "-8px" }}>
+                      <Button type="primary" onClick={handleAddToLibrary} className="add-library-btn">
                         添加绘本全仓库
                       </Button>
                     </Col>
                   </Row>
                 </Form>
-
-                <div className="add-to-library"></div>
               </Card>
 
               <Card style={{ marginTop: "8px" }}>
@@ -451,13 +353,9 @@ export default function BookDonation() {
                           <Input placeholder="请输入" />
                         </Form.Item>
                       </Col>
-                      <Col span={24} style={{ textAlign: "right",marginTop: '-8px' }}>
+                      <Col span={24} style={{ textAlign: "right", marginTop: "-8px" }}>
                         <Space>
-                          <Button
-                            type="primary"
-                            onClick={handleSubmit}
-                            className="confirm-btn"
-                          >
+                          <Button type="primary" onClick={handleSubmit} className="confirm-btn">
                             确认
                           </Button>
                           <Button onClick={handleCancel} className="cancel-btn">
@@ -469,8 +367,6 @@ export default function BookDonation() {
                   </Form>
                 </div>
               </Card>
-              {/* </div>
-              </Card> */}
             </Col>
 
             <Col span={12}>
@@ -486,38 +382,40 @@ export default function BookDonation() {
                     className="info-card"
                   >
                     <div className="action-buttons">
-                      <Button type="primary" className="report-btn">
+                      <Button
+                        type="primary"
+                        icon={<FileTextOutlined />}
+                        onClick={handleGenerateReport}
+                        className="report-btn"
+                      >
                         生成捐赠报告
                       </Button>
-                      <Button type="primary" className="reload-btn">重置</Button>
-                      <Button type="primary" className="quick-btn">
+                      <Button type="primary" icon={<ReloadOutlined />} onClick={handleReset} className="reload-btn">
+                        重置
+                      </Button>
+                      <Button
+                        type="primary"
+                        icon={<ThunderboltOutlined />}
+                        onClick={handleQuickAction}
+                        className="quick-btn"
+                      >
                         快捷操作
                       </Button>
                     </div>
 
-                    <Table
+                    <TangTable
                       columns={donationColumns}
-                      dataSource={donationData}
-                      pagination={false}
-                      size="small"
-                      className="donation-table"
+                      dataSource={donationRecords}
+                      // loading={donationLoading}
+                      currentPage={donationCurrentPage}
+                      total={donationTotal}
+                      pageSize={donationPageSize}
+                      onPageChange={handleDonationPageChange}
+                      scroll={{ x: "max-content", y: 49 * 5 }}
                     />
-
-                    <div className="pagination-container">
-                      <Pagination
-                        defaultCurrent={1}
-                        total={100}
-                        showSizeChanger
-                        showQuickJumper
-                        size="small"
-                        pageSizeOptions={["10", "20", "50"]}
-                        defaultPageSize={10}
-                        showTotal={(total) => `${total}条/页`}
-                      />
-                    </div>
                   </Card>
                 </Col>
-                <Col span={24} style={{ marginTop: "-16px" }}>
+                <Col span={24} style={{ marginTop: "16px" }}>
                   <Card
                     title={
                       <div className="ranking-header">
@@ -527,13 +425,16 @@ export default function BookDonation() {
                     }
                     className="ranking-card"
                   >
-                    <Table
+                    <TangTable
                       columns={rankingColumns}
-                      dataSource={rankingData}
-                      pagination={false}
-                      size="small"
-                      scroll={{ x: "max-content", y: 40 * 3 }}
-                      className="ranking-table"
+                      dataSource={rankingRecords}
+                      // loading={rankingLoading}
+                      currentPage={1}
+                      total={rankingRecords.length}
+                      pageSize={rankingRecords.length}
+                      onPageChange={() => {}}
+                      scroll={{ x: "max-content", y: 49 * 3 }}
+                      // tableProps={{ pagination: false }}
                     />
                   </Card>
                 </Col>
@@ -543,5 +444,5 @@ export default function BookDonation() {
         </div>
       </div>
     </>
-  );
+  )
 }

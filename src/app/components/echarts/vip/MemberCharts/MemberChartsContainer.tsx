@@ -10,13 +10,6 @@ type ChartType = "bar" | "pie" | "line" | "doughnut"
 export function MemberChartsContainer() {
   const [chartType, setChartType] = useState<ChartType>("pie")
 
-  const chartTypes = [
-    { key: "bar", label: "条形图" },
-    { key: "bar", label: "柱状图" },
-    { key: "line", label: "折线图" },
-    { key: "doughnut", label: "环形图" },
-  ]
-
   return (
     <div className={styles.chartContainerWrapper}>
       <div className={styles.chartContent}>
@@ -26,10 +19,10 @@ export function MemberChartsContainer() {
 
         <div className={styles.chartButtons}>
           <Button
-            className={`${styles.chartTypeButton} ${chartType === "bar" ? styles.active : ""}`}
-            onClick={() => setChartType("bar")}
+            className={`${styles.chartTypeButton} ${chartType === "pie" ? styles.active : ""}`}
+            onClick={() => setChartType("pie")}
           >
-            条形图
+            饼图
           </Button>
           <Button
             className={`${styles.chartTypeButton} ${chartType === "bar" ? styles.active : ""}`}
