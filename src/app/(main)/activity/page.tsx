@@ -1,39 +1,48 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import {
-  ConfigProvider,
-  App,
-  Row,
-  Col,
-  Card,
-  Button,
-  Tabs,
-  Input,
-  Tag,
-  Space,
-  Statistic,
-} from "antd";
-import {
-  PlusOutlined,
-  ArrowUpOutlined,
-  ArrowDownOutlined,
-  SoundOutlined,
-  FileTextOutlined,
-  UserOutlined,
-  NotificationOutlined,
-  BarChartOutlined,
-  CommentOutlined,
-} from "@ant-design/icons";
-import Banner from "@/components/banner";
-import "./page.scss";
+import { useState } from "react"
+import { ConfigProvider, App, Row, Col } from "antd"
+import { FileTextOutlined, UserOutlined, NotificationOutlined, BarChartOutlined } from "@ant-design/icons"
+import { Form } from "antd"
+import dayjs from "dayjs"
 
-const { TabPane } = Tabs;
-const { Search } = Input;
+import Banner from "@/components/banner"
+import StatisticCard from "@/components/activity/StatisticCard"
+import FunctionButtons from "@/components/activity/FunctionButtons"
+import ActivityList from "@/components/activity/ActivityList/ActivityList"
+import AnnouncementList from "@/components/activity/Announce/AnnouncementList"
+import ActivityFormModal from "@/components/activity/ActivityFormModal/ActivityFormModal"
+import ActivityDetailModal from "@/components/activity/ActivityDetailModal/ActivityDetailModal"
+import CancelActivityModal from "@/components/activity/CancelActivityModal"
+import AnnouncementFormModal from "@/components/activity/Announce/AnnouncementFormModal"
+import AnnouncementDetailModal from "@/components/activity/Announce/AnnouncementDetailModal"
+import SignupManagementDrawer from "@/components/activity/SignupManagementDrawer"
+import DataAnalysisDrawer from "@/components/activity/DataAnalysisDrawer"
+import FeedbackDrawer from "@/components/activity/FeedbackDrawer"
+import NotificationDrawer from "@/components/activity/NotificationDrawer"
+import type { ActivityData } from "@/components/activity/ActivityCard/ActivityCard"
+import type { AnnouncementData } from "@/components/activity/Announce/AnnouncementItem"
+
+import "./page.scss"
 
 const ActivityManagementPage = () => {
-  const { message } = App.useApp();
-  const [activeTab, setActiveTab] = useState("all");
+  const { message } = App.useApp()
+  const [activeTab, setActiveTab] = useState("all")
+  const [createModalVisible, setCreateModalVisible] = useState(false)
+  const [activityDetailVisible, setActivityDetailVisible] = useState(false)
+  const [announceModalVisible, setAnnounceModalVisible] = useState(false)
+  const [currentActivity, setCurrentActivity] = useState<ActivityData | null>(null)
+  const [currentAnnouncement, setCurrentAnnouncement] = useState<AnnouncementData | null>(null)
+  const [editModalVisible, setEditModalVisible] = useState(false)
+  const [cancelModalVisible, setCancelModalVisible] = useState(false)
+  const [signupDrawerVisible, setSignupDrawerVisible] = useState(false)
+  const [dataAnalysisDrawerVisible, setDataAnalysisDrawerVisible] = useState(false)
+  const [feedbackDrawerVisible, setFeedbackDrawerVisible] = useState(false)
+  const [notificationDrawerVisible, setNotificationDrawerVisible] = useState(false)
+  const [announcementDetailVisible, setAnnouncementDetailVisible] = useState(false)
+  const [form] = Form.useForm()
+  const [announceForm] = Form.useForm()
+  const [editForm] = Form.useForm()
 
   // 统计数据
   const statistics = [
@@ -44,7 +53,7 @@ const ActivityManagementPage = () => {
       iconBg: "#E6F7FF",
       iconColor: "#1890FF",
       trend: 135,
-      trendType: "up",
+      trendType: "up" as "up" | "down",
     },
     {
       title: "报名人数",
@@ -53,7 +62,7 @@ const ActivityManagementPage = () => {
       iconBg: "#FFF2F0",
       iconColor: "#FF4D4F",
       trend: 103,
-      trendType: "down",
+      trendType: "down" as "up" | "down",
     },
     {
       title: "活动参与率",
@@ -62,7 +71,7 @@ const ActivityManagementPage = () => {
       iconBg: "#F6FFED",
       iconColor: "#52C41A",
       trend: "1.25%",
-      trendType: "up",
+      trendType: "up" as "up" | "down",
     },
     {
       title: "已完成活动数",
@@ -71,7 +80,7 @@ const ActivityManagementPage = () => {
       iconBg: "#E6F7FF",
       iconColor: "#1890FF",
       trend: 236,
-      trendType: "up",
+      trendType: "up" as "up" | "down",
     },
     {
       title: "报名中活动数",
@@ -80,7 +89,7 @@ const ActivityManagementPage = () => {
       iconBg: "#FFFBE6",
       iconColor: "#FAAD14",
       trend: 166,
-      trendType: "up",
+      trendType: "up" as "up" | "down",
     },
     {
       title: "发布活动总数",
@@ -89,12 +98,12 @@ const ActivityManagementPage = () => {
       iconBg: "#E6F7FF",
       iconColor: "#1890FF",
       trend: 135,
-      trendType: "up",
+      trendType: "up" as "up" | "down",
     },
-  ];
+  ]
 
   // 活动数据
-  const activities = [
+  const [activities, setActivities] = useState<ActivityData[]>([
     {
       id: "1",
       title: "亲子故事分享会",
@@ -104,41 +113,53 @@ const ActivityManagementPage = () => {
       contact: "189****4032",
       location: "23幢1单元1楼单元门进入XXXXXXXXXXXXXXXXX",
       status: "报名中",
+      maxParticipants: 30,
+      currentParticipants: 15,
+      description: "亲子故事分享会将带领孩子们一起探索有趣的故事世界，培养阅读兴趣和良好习惯。",
     },
     {
       id: "2",
-      title: "亲子故事分享会",
-      type: "亲子互动",
-      time: "2024-01-31 10:30-12:30",
-      manager: "陈志*",
-      contact: "189****4032",
-      location: "23幢1单元1楼单元门进入XXXXXXXXXXXXXXXXX",
+      title: "社区棋牌比赛",
+      type: "休闲娱乐",
+      time: "2024-02-15 14:00-17:00",
+      manager: "王建*",
+      contact: "135****6789",
+      location: "小区活动中心二楼",
       status: "进行中",
+      maxParticipants: 50,
+      currentParticipants: 42,
+      description: "社区棋牌比赛旨在丰富社区居民的文化生活，促进邻里交流。",
     },
     {
       id: "3",
-      title: "亲子故事分享会",
-      type: "亲子互动",
-      time: "2024-01-31 10:30-12:30",
-      manager: "陈志*",
-      contact: "189****4032",
-      location: "23幢1单元1楼单元门进入XXXXXXXXXXXXXXXXX",
+      title: "健康讲座",
+      type: "知识讲座",
+      time: "2024-01-20 09:00-11:00",
+      manager: "李美*",
+      contact: "156****2345",
+      location: "小区多功能厅",
       status: "已结束",
+      maxParticipants: 100,
+      currentParticipants: 87,
+      description: "健康讲座由专业医生为社区居民提供健康知识普及，关注社区居民身心健康。",
     },
     {
       id: "4",
-      title: "亲子故事分享会",
-      type: "亲子互动",
-      time: "2024-01-31 10:30-12:30",
-      manager: "陈志*",
-      contact: "189****4032",
-      location: "23幢1单元1楼单元门进入XXXXXXXXXXXXXXXXX",
+      title: "广场舞培训",
+      type: "文体活动",
+      time: "2024-02-05 19:00-20:30",
+      manager: "张丽*",
+      contact: "177****5678",
+      location: "小区中央广场",
       status: "报名中",
+      maxParticipants: 40,
+      currentParticipants: 22,
+      description: "广场舞培训活动旨在丰富社区居民的业余生活，提升身体健康水平。",
     },
-  ];
+  ])
 
   // 通知公告数据
-  const announcements = [
+  const [announcements, setAnnouncements] = useState<AnnouncementData[]>([
     {
       id: "1",
       title: "因电路改造，与2月1日停电的通知",
@@ -148,79 +169,252 @@ const ActivityManagementPage = () => {
     },
     {
       id: "2",
-      title: "因电路改造，与2月1日停电的通知",
+      title: "关于举办春节联欢会的通知",
       content:
-        "小区家电站点各维修改造，决定2月1日23时开始小区21、22、23、24、25楼停电。请各位业主提前做好停电准备，设备维修完成，将以第一时间通知大家。",
-      time: "2024-01-31 10:11",
+        "为丰富社区居民的文化生活，营造和谐喜庆的节日氛围，小区将于2024年2月8日晚上7点在活动中心举办春节联欢会。欢迎各位居民踊跃参与，共度佳节。",
+      time: "2024-01-28 15:30",
     },
     {
       id: "3",
-      title: "因电路改造，与2月1日停电的通知",
+      title: "小区安全防范提示",
       content:
-        "小区家电站点各维修改造，决定2月1日23时开始小区21、22、23、24、25楼停电。请各位业主提前做好停电准备，设备维修完成，将以第一时间通知大家。",
-      time: "2024-01-31 10:11",
+        "近期周边地区发生多起入室盗窃案件，提醒各位业主加强安全防范意识，外出时关好门窗，贵重物品妥善保管。发现可疑情况请立即联系物业或报警。",
+      time: "2024-01-25 09:45",
     },
     {
       id: "4",
-      title: "因电路改造，与2月1日停电的通知",
+      title: "物业费缴纳温馨提醒",
       content:
-        "小区家电站点各维修改造，决定2月1日23时开始小区21、22、23、24、25楼停电。请各位业主提前做好停电准备，设备维修完成，将以第一时间通知大家。",
-      time: "2024-01-31 10:11",
+        "尊敬的各位业主，2024年第一季度物业费已开始缴纳，请于2月15日前完成缴费。可通过物业APP、微信公众号或到物业服务中心缴纳。",
+      time: "2024-01-20 11:23",
     },
-  ];
+  ])
+
+  // 模拟报名数据
+  const signupData = [
+    { id: 1, name: "张三", phone: "137****1234", time: "2024-01-20 10:15", status: "已确认" },
+    { id: 2, name: "李四", phone: "139****5678", time: "2024-01-20 11:30", status: "已确认" },
+    { id: 3, name: "王五", phone: "158****9012", time: "2024-01-21 09:25", status: "待确认" },
+    { id: 4, name: "赵六", phone: "186****3456", time: "2024-01-21 14:40", status: "待确认" },
+    { id: 5, name: "钱七", phone: "135****7890", time: "2024-01-22 16:55", status: "已确认" },
+  ]
+
+  // 模拟反馈数据
+  const feedbackData = [
+    {
+      id: 1,
+      user: "王先生",
+      content: "活动组织得很好，但场地有点小",
+      time: "2024-01-25 10:30",
+      activity: "亲子故事分享会",
+    },
+    {
+      id: 2,
+      user: "李女士",
+      content: "希望能增加活动次数，很受欢迎",
+      time: "2024-01-26 15:45",
+      activity: "社区棋牌比赛",
+    },
+    {
+      id: 3,
+      user: "张先生",
+      content: "活动内容丰富，但时间安排有点紧",
+      time: "2024-01-27 09:20",
+      activity: "健康讲座",
+    },
+    {
+      id: 4,
+      user: "刘女士",
+      content: "希望能提供更多座位，参与人数太多",
+      time: "2024-01-28 11:10",
+      activity: "广场舞培训",
+    },
+  ]
 
   const handleTabChange = (key: string) => {
-    setActiveTab(key);
-  };
+    setActiveTab(key)
+  }
 
-  const handleCreateActivity = () => {
-    message.info("创建活动");
-  };
+  // 创建活动相关函数
+  const showCreateModal = () => {
+    form.resetFields()
+    setCreateModalVisible(true)
+  }
+
+  const handleCreateOk = () => {
+    form
+      .validateFields()
+      .then((values) => {
+        const timeRange = values.timeRange
+        const startTime = timeRange[0].format("HH:mm")
+        const endTime = timeRange[1].format("HH:mm")
+
+        const newActivity = {
+          id: String(activities.length + 1),
+          title: values.title,
+          type: values.type,
+          time: `${values.date.format("YYYY-MM-DD")} ${startTime}-${endTime}`,
+          manager: values.manager,
+          contact: values.contact,
+          location: values.location,
+          status: "报名中",
+          maxParticipants: values.maxParticipants,
+          currentParticipants: 0,
+          description: values.description,
+        }
+
+        setActivities([...activities, newActivity])
+        message.success("活动创建成功！")
+        setCreateModalVisible(false)
+      })
+      .catch((info) => {
+        console.log("验证失败:", info)
+      })
+  }
+
+  // 编辑活动相关函数
+  const showEditModal = (activity: ActivityData) => {
+    setCurrentActivity(activity)
+
+    // 解析时间
+    const timeStr = activity.time
+    const datePart = timeStr.split(" ")[0]
+    const timePart = timeStr.split(" ")[1]
+    const startTime = timePart.split("-")[0]
+    const endTime = timePart.split("-")[1]
+
+    editForm.setFieldsValue({
+      title: activity.title,
+      type: activity.type,
+      date: dayjs(datePart),
+      timeRange: [dayjs(startTime, "HH:mm"), dayjs(endTime, "HH:mm")],
+      manager: activity.manager,
+      contact: activity.contact,
+      location: activity.location,
+      maxParticipants: activity.maxParticipants,
+      description: activity.description,
+    })
+
+    setEditModalVisible(true)
+  }
+
+  const handleEditOk = () => {
+    editForm
+      .validateFields()
+      .then((values) => {
+        const timeRange = values.timeRange
+        const startTime = timeRange[0].format("HH:mm")
+        const endTime = timeRange[1].format("HH:mm")
+
+        const updatedActivities = activities.map((activity) => {
+          if (activity.id === currentActivity?.id) {
+            return {
+              ...activity,
+              title: values.title,
+              type: values.type,
+              time: `${values.date.format("YYYY-MM-DD")} ${startTime}-${endTime}`,
+              manager: values.manager,
+              contact: values.contact,
+              location: values.location,
+              maxParticipants: values.maxParticipants,
+              description: values.description,
+            }
+          }
+          return activity
+        })
+
+        setActivities(updatedActivities)
+        message.success("活动修改成功！")
+        setEditModalVisible(false)
+      })
+      .catch((info) => {
+        console.log("验证失败:", info)
+      })
+  }
+
+  // 取消活动相关函数
+  const showCancelModal = (activity: ActivityData) => {
+    setCurrentActivity(activity)
+    setCancelModalVisible(true)
+  }
+
+  const handleCancelActivity = () => {
+    const updatedActivities = activities.map((activity) => {
+      if (activity.id === currentActivity?.id) {
+        return {
+          ...activity,
+          status: "已取消",
+        }
+      }
+      return activity
+    })
+
+    setActivities(updatedActivities)
+    message.success("活动已取消！")
+    setCancelModalVisible(false)
+  }
+
+  // 查看活动详情
+  const showActivityDetail = (activity: ActivityData) => {
+    setCurrentActivity(activity)
+    setActivityDetailVisible(true)
+  }
+
+  // 发布公告相关函数
+  const showAnnounceModal = () => {
+    announceForm.resetFields()
+    setAnnounceModalVisible(true)
+  }
+
+  const handleAnnounceOk = () => {
+    announceForm
+      .validateFields()
+      .then((values) => {
+        const newAnnouncement = {
+          id: String(announcements.length + 1),
+          title: values.title,
+          content: values.content,
+          time: dayjs().format("YYYY-MM-DD HH:mm"),
+        }
+
+        setAnnouncements([newAnnouncement, ...announcements])
+        message.success("公告发布成功！")
+        setAnnounceModalVisible(false)
+      })
+      .catch((info) => {
+        console.log("验证失败:", info)
+      })
+  }
+
+  // 查看公告详情
+  const showAnnouncementDetail = (announcement: AnnouncementData) => {
+    setCurrentAnnouncement(announcement)
+    setAnnouncementDetailVisible(true)
+  }
+
+  // 报名管理
+  const showSignupManagement = () => {
+    setSignupDrawerVisible(true)
+  }
+
+  // 数据分析
+  const showDataAnalysis = () => {
+    setDataAnalysisDrawerVisible(true)
+  }
+
+  // 用户反馈
+  const showFeedback = () => {
+    setFeedbackDrawerVisible(true)
+  }
+
+  // 通知发送
+  const showNotification = () => {
+    setNotificationDrawerVisible(true)
+  }
 
   const handleSearch = (value: string) => {
-    message.info(`搜索关键词: ${value}`);
-  };
-
-  const handleEditActivity = (id: string) => {
-    message.info(`编辑活动 ID: ${id}`);
-  };
-
-  const handleCancelActivity = (id: string) => {
-    message.info(`取消活动 ID: ${id}`);
-  };
-
-  const handlePublishAnnouncement = () => {
-    message.info("发布公告");
-  };
-
-  const handleViewMore = (type: string) => {
-    message.info(`查看更多 ${type}`);
-  };
-
-  // 根据状态获取活动卡片的样式类名
-  const getActivityCardClass = (status: string) => {
-    switch (status) {
-      case "报名中":
-        return "activity-card signup";
-      case "进行中":
-        return "activity-card ongoing";
-      case "已结束":
-        return "activity-card ended";
-      default:
-        return "activity-card";
-    }
-  };
-
-  // 过滤活动
-  const filteredActivities =
-    activeTab === "all"
-      ? activities
-      : activities.filter((activity) => {
-          if (activeTab === "signup") return activity.status === "报名中";
-          if (activeTab === "ongoing") return activity.status === "进行中";
-          if (activeTab === "ended") return activity.status === "已结束";
-          return true;
-        });
+    message.info(`搜索关键词: ${value}`)
+  }
 
   return (
     <ConfigProvider
@@ -243,225 +437,135 @@ const ActivityManagementPage = () => {
 
       <div className="page-content">
         {/* 统计数据卡片 */}
-        {/* <div className="statistics-section"> */}
         <Row gutter={32}>
           {statistics.map((stat, index) => (
             <Col span={24 / statistics.length} key={index}>
-              <Card className="statistic-card">
-                <div className="statistic-header">
-                  <div
-                    className="icon-wrapper"
-                    style={{ backgroundColor: stat.iconBg }}
-                  >
-                    <span className="icon" style={{ color: stat.iconColor }}>
-                      {stat.icon}
-                    </span>
-                  </div>
-                  <div className="statistic-title">{stat.title}</div>
-                </div>
-                <div className="statistic-value">{stat.value}</div>
-                <div className="statistic-footer">
-                  <span className="label">较上月</span>
-                  <span
-                    className={`trend ${
-                      stat.trendType === "up" ? "up" : "down"
-                    }`}
-                  >
-                    {stat.trendType === "up" ? (
-                      <ArrowUpOutlined />
-                    ) : (
-                      <ArrowDownOutlined />
-                    )}
-                    {stat.trend}
-                  </span>
-                </div>
-              </Card>
+              <StatisticCard
+                title={stat.title}
+                value={stat.value}
+                icon={stat.icon}
+                iconBg={stat.iconBg}
+                iconColor={stat.iconColor}
+                trend={stat.trend}
+                trendType={stat.trendType}
+              />
             </Col>
           ))}
         </Row>
-        {/* </div> */}
 
         <Row gutter={16} style={{ marginTop: 16 }}>
           <Col span={16}>
             {/* 常用功能 */}
-            <Card className="section-card">
-              <div className="function-buttons">
-                <Button
-                  type="primary"
-                  className="function-button"
-                  onClick={handleCreateActivity}
-                >
-                  <FileTextOutlined />
-                  活动创建
-                </Button>
-                <Button type="primary" className="function-button">
-                  <UserOutlined />
-                  报名管理
-                </Button>
-                <Button type="primary" className="function-button">
-                  <NotificationOutlined />
-                  通知发送
-                </Button>
-                <Button type="primary" className="function-button">
-                  <BarChartOutlined />
-                  数据分析
-                </Button>
-                <Button type="primary" className="function-button">
-                  <CommentOutlined />
-                  用户反馈
-                </Button>
-              </div>
-            </Card>
+            <FunctionButtons
+              onCreateActivity={showCreateModal}
+              onSignupManagement={showSignupManagement}
+              onNotification={showNotification}
+              onDataAnalysis={showDataAnalysis}
+              onFeedback={showFeedback}
+            />
 
             {/* 活动列表 */}
-            <Card className="section-card" style={{ marginTop: 16 }}>
-              <div className="section-header">
-                <div className="tabs-container">
-                  <Button
-                    type={activeTab === "all" ? "primary" : "default"}
-                    onClick={() => handleTabChange("all")}
-                  >
-                    所有活动
-                  </Button>
-                  <Button
-                    type={activeTab === "category" ? "primary" : "default"}
-                    onClick={() => handleTabChange("category")}
-                  >
-                    分类
-                  </Button>
-                  <Search
-                    placeholder="亲子互动"
-                    onSearch={handleSearch}
-                    style={{ width: 200, marginLeft: 8 }}
-                  />
-                  <div className="status-tags">
-                    <Tag
-                      color={activeTab === "signup" ? "#1890FF" : "default"}
-                      onClick={() => handleTabChange("signup")}
-                    >
-                      报名中
-                    </Tag>
-                    <Tag
-                      color={activeTab === "ongoing" ? "#F59A23" : "default"}
-                      onClick={() => handleTabChange("ongoing")}
-                    >
-                      进行中
-                    </Tag>
-                    <Tag
-                      color={activeTab === "ended" ? "#FF4D4F" : "default"}
-                      onClick={() => handleTabChange("ended")}
-                    >
-                      已结束
-                    </Tag>
-                  </div>
-                </div>
-                <Button
-                  type="primary"
-                  icon={<PlusOutlined />}
-                  onClick={handleCreateActivity}
-                >
-                  去创建
-                </Button>
-              </div>
-
-              <div className="activity-list">
-                <Row gutter={[16, 16]}>
-                  {filteredActivities.map((activity) => (
-                    <Col span={12} key={activity.id}>
-                      <div className={getActivityCardClass(activity.status)}>
-                        <div className="activity-header">
-                          <div className="activity-title">
-                            活动名称：{activity.title}
-                          </div>
-                          <div className="activity-status">
-                            {activity.status}
-                          </div>
-                        </div>
-                        <div className="activity-info">
-                          <div className="info-item">
-                            <span className="label">事件类型：</span>
-                            <span className="value">{activity.type}</span>
-                          </div>
-                          <div className="info-item">
-                            <span className="label">活动时间：</span>
-                            <span className="value">{activity.time}</span>
-                          </div>
-                          <div className="info-item">
-                            <span className="label">负责人：</span>
-                            <span className="value">{activity.manager}</span>
-                          </div>
-                          <div className="info-item">
-                            <span className="label">联系方式：</span>
-                            <span className="value">{activity.contact}</span>
-                          </div>
-                          <div className="info-item">
-                            <span className="label">活动地点：</span>
-                            <span className="value">{activity.location}</span>
-                          </div>
-                        </div>
-                        <div className="activity-actions">
-                          <Button
-                            type="link"
-                            onClick={() => handleEditActivity(activity.id)}
-                          >
-                            修改
-                          </Button>
-                          <Button
-                            type="link"
-                            onClick={() => handleCancelActivity(activity.id)}
-                          >
-                            取消
-                          </Button>
-                        </div>
-                      </div>
-                    </Col>
-                  ))}
-                </Row>
-              </div>
-            </Card>
+            <div style={{ marginTop: 16 }}>
+              <ActivityList
+                activities={activities}
+                activeTab={activeTab}
+                onTabChange={handleTabChange}
+                onSearch={handleSearch}
+                onCreateActivity={showCreateModal}
+                onViewActivityDetail={showActivityDetail}
+                onEditActivity={showEditModal}
+                onCancelActivity={showCancelModal}
+              />
+            </div>
           </Col>
 
           <Col span={8}>
             {/* 通知公告 */}
-            <Card className="section-card">
-              <div className="section-header">
-                <h3>通知公告</h3>
-                <div>
-                  <Button type="primary" onClick={handlePublishAnnouncement}>
-                    去发布
-                  </Button>
-                  <Button type="link" onClick={() => handleViewMore("通知")}>
-                    更多
-                  </Button>
-                </div>
-              </div>
-              <div className="announcement-list">
-                {announcements.map((announcement) => (
-                  <div className="announcement-item" key={announcement.id}>
-                    <div className="announcement-icon">
-                      <SoundOutlined />
-                    </div>
-                    <div className="announcement-content">
-                      <div className="announcement-title">
-                        {announcement.title}
-                      </div>
-                      <div className="announcement-text">
-                        {announcement.content}
-                      </div>
-                      <div className="announcement-footer">
-                        <span className="time">{announcement.time}</span>
-                        <Button type="link">查看详情</Button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </Card>
+            <AnnouncementList
+              announcements={announcements}
+              onCreateAnnouncement={showAnnounceModal}
+              onViewMore={() => message.info("查看更多通知")}
+              onViewDetail={showAnnouncementDetail}
+            />
           </Col>
         </Row>
       </div>
-    </ConfigProvider>
-  );
-};
 
-export default ActivityManagementPage;
+      {/* 创建活动模态框 */}
+      <ActivityFormModal
+        title="创建活动"
+        visible={createModalVisible}
+        onCancel={() => setCreateModalVisible(false)}
+        onOk={handleCreateOk}
+        form={form}
+      />
+
+      {/* 编辑活动模态框 */}
+      <ActivityFormModal
+        title="编辑活动"
+        visible={editModalVisible}
+        onCancel={() => setEditModalVisible(false)}
+        onOk={handleEditOk}
+        form={editForm}
+        initialValues={currentActivity || undefined}
+      />
+
+      {/* 活动详情模态框 */}
+      <ActivityDetailModal
+        visible={activityDetailVisible}
+        onCancel={() => setActivityDetailVisible(false)}
+        activity={currentActivity}
+        signupData={signupData}
+      />
+
+      {/* 取消活动模态框 */}
+      <CancelActivityModal
+        visible={cancelModalVisible}
+        onCancel={() => setCancelModalVisible(false)}
+        onOk={handleCancelActivity}
+        activity={currentActivity}
+      />
+
+      {/* 发布公告模态框 */}
+      <AnnouncementFormModal
+        visible={announceModalVisible}
+        onCancel={() => setAnnounceModalVisible(false)}
+        onOk={handleAnnounceOk}
+        form={announceForm}
+      />
+
+      {/* 公告详情模态框 */}
+      <AnnouncementDetailModal
+        visible={announcementDetailVisible}
+        onCancel={() => setAnnouncementDetailVisible(false)}
+        announcement={currentAnnouncement}
+      />
+
+      {/* 报名管理抽屉 */}
+      <SignupManagementDrawer
+        visible={signupDrawerVisible}
+        onClose={() => setSignupDrawerVisible(false)}
+        signupData={signupData}
+      />
+
+      {/* 数据分析抽屉 */}
+      <DataAnalysisDrawer visible={dataAnalysisDrawerVisible} onClose={() => setDataAnalysisDrawerVisible(false)} />
+
+      {/* 用户反馈抽屉 */}
+      <FeedbackDrawer
+        visible={feedbackDrawerVisible}
+        onClose={() => setFeedbackDrawerVisible(false)}
+        feedbackData={feedbackData}
+      />
+
+      {/* 通知发送抽屉 */}
+      <NotificationDrawer
+        visible={notificationDrawerVisible}
+        onClose={() => setNotificationDrawerVisible(false)}
+        activities={activities}
+      />
+    </ConfigProvider>
+  )
+}
+
+export default ActivityManagementPage

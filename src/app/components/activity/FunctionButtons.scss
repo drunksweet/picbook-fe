@@ -1,0 +1,26 @@
+.function-buttons {
+  width: 100%;
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0 0.5rem 1rem;
+  gap: 1rem;
+
+  .function-button {
+    height: 80px;
+    flex: 1;
+    min-width: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-color: #f59a23;
+    border-radius: 8px;
+
+    .anticon {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+  }
+}

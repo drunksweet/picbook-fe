@@ -1,0 +1,22 @@
+.section-card {
+  border-radius: 8px;
+  overflow: hidden;
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+
+    h3 {
+      margin: 0;
+      font-size: 16px;
+      color: #333;
+    }
+  }
+
+  .announcement-list {
+    max-height: 430px;
+    overflow-y: auto;
+  }
+}

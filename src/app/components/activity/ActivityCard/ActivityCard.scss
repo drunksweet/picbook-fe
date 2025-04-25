@@ -1,0 +1,86 @@
+.activity-card {
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    padding: 16px;
+    height: 100%;
+  
+    &.signup {
+      border-top: 3px solid #1890ff;
+  
+      .activity-status {
+        color: #1890ff;
+      }
+    }
+  
+    &.ongoing {
+      border-top: 3px solid #f59a23;
+  
+      .activity-status {
+        color: #f59a23;
+      }
+    }
+  
+    &.ended {
+      border-top: 3px solid #ff4d4f;
+  
+      .activity-status {
+        color: #ff4d4f;
+      }
+    }
+  
+    .activity-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+  
+      .activity-title {
+        font-weight: bold;
+        font-size: 16px;
+      }
+  
+      .activity-status {
+        font-weight: bold;
+      }
+    }
+  
+    .activity-info {
+      .info-item {
+        margin-bottom: 8px;
+        display: flex;
+  
+        .label {
+          color: #666;
+          width: 80px;
+          flex-shrink: 0;
+        }
+  
+        .value {
+          color: #333;
+          flex: 1;
+          word-break: break-all;
+        }
+      }
+    }
+  
+    .activity-actions {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 16px;
+      border-top: 1px dashed #e8e8e8;
+      padding-top: 12px;
+  
+      button {
+        padding: 0;
+  
+        &:first-child {
+          color: #f59a23;
+        }
+  
+        &:last-child {
+          color: #999;
+        }
+      }
+    }
+  }
+  
