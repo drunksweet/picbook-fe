@@ -88,7 +88,7 @@ export default function InventoryActionButtons({
         },
       });
 
-      if (response.data.code === 0) {
+      if (response.data.code === 200) {
         message.success("添加库存记录成功");
         setIsModalVisible(false);
         form.resetFields();

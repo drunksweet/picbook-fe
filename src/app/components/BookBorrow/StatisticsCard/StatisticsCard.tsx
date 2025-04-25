@@ -27,7 +27,7 @@ const StatisticsCard: React.FC<StatisticsCardProps> = ({ onPeriodChange }) => {
   const statisticsSelctOption = [
     { value: "week", label: <span>近一周</span> },
     { value: "month", label: <span>近一月</span> },
-    { value: "year", label: <span>近一月</span> },
+    { value: "year", label: <span>近一年</span> },
   ];
 
   // 获取统计数据

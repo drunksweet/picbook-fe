@@ -40,6 +40,6 @@ export const config = {
      * - _next（Next.js内部路由）
      * - 静态文件（images, files等）
      */
-    "/((?!api|_next/static|_next/image|favicon.ico).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico|login).*)",
   ],
 }
