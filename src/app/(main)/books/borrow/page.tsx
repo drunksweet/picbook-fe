@@ -1,11 +1,8 @@
-"use client";
+"use client"
 
-import type React from "react";
-
-import { useState, useEffect } from "react";
-import { ConfigProvider, App, Row, Col, Form } from "antd";
-import { useRouter } from "next/navigation";
-import Banner from "@/components/banner";
+import { useState, useEffect } from "react"
+import { ConfigProvider, App, Row, Col, Form } from "antd"
+import Banner from "@/components/banner"
 import {
   type BorrowRecordItem,
   type BookItem,
@@ -13,130 +10,137 @@ import {
   searchBooks,
   generateMockBorrowRecords,
   generateMockSearchResults,
-} from "@/api/books/borrow/borrow";
+} from "@/api/books/borrow/borrow"
+import BookSearchForm from "@/components/BookBorrow/BookSearchForm/BookSearchForm"
+import BorrowHistoryCard from "@/components/BookBorrow/BorrowHistoryCard/BorrowHistoryCard"
+import SearchResultsCard from "@/components/BookBorrow/SearchResultsCard/SearchResultsCard"
+import StatisticsCard from "@/components/BookBorrow/StatisticsCard/StatisticsCard"
 
-// 导入拆分后的组件
-import BorrowerInfoCard from "@/components/BookBorrow/BorrowerInfoCard/BorrowerInfoCard";
-import BookSearchForm from "@/components/BookBorrow/BookSearchForm/BookSearchForm";
-import BorrowHistoryCard from "@/components/BookBorrow/BorrowHistoryCard/BorrowHistoryCard";
-import SearchResultsCard from "@/components/BookBorrow/SearchResultsCard/SearchResultsCard";
-import StatisticsCard from "@/components/BookBorrow/StatisticsCard/StatisticsCard";
-
-import "./page.scss";
+import "./page.scss"
 
 const BookBorrowPage = () => {
-  const { message, modal } = App.useApp();
-  const [searchForm] = Form.useForm();
+  const { message, modal } = App.useApp()
+  const [searchForm] = Form.useForm()
 
   // 借阅记录状态
-  const [borrowRecords, setBorrowRecords] = useState<BorrowRecordItem[]>([]);
-  const [borrowCurrentPage, setBorrowCurrentPage] = useState<number>(1);
-  const [borrowPageSize, setBorrowPageSize] = useState<number>(10);
-  const [borrowTotal, setBorrowTotal] = useState<number>(0);
-  const [borrowTotalPages, setBorrowTotalPages] = useState<number>(0);
-  const [borrowLoading, setBorrowLoading] = useState<boolean>(false);
-  const [activeTab, setActiveTab] = useState<string>("1");
+  const [borrowRecords, setBorrowRecords] = useState<BorrowRecordItem[]>([])
+  const [borrowCurrentPage, setBorrowCurrentPage] = useState<number>(1)
+  const [borrowPageSize, setBorrowPageSize] = useState<number>(10)
+  const [borrowTotal, setBorrowTotal] = useState<number>(0)
+  const [borrowTotalPages, setBorrowTotalPages] = useState<number>(0)
+  const [borrowLoading, setBorrowLoading] = useState<boolean>(false)
+  const [activeTab, setActiveTab] = useState<string>("1")
 
   // 搜索结果状态
-  const [searchResults, setSearchResults] = useState<BookItem[]>([]);
-  const [searchCurrentPage, setSearchCurrentPage] = useState<number>(1);
-  const [searchPageSize, setSearchPageSize] = useState<number>(10);
-  const [searchTotal, setSearchTotal] = useState<number>(0);
-  const [searchTotalPages, setSearchTotalPages] = useState<number>(0);
-  const [searchLoading, setSearchLoading] = useState<boolean>(false);
+  const [searchResults, setSearchResults] = useState<BookItem[]>([])
+  const [searchCurrentPage, setSearchCurrentPage] = useState<number>(1)
+  const [searchPageSize, setSearchPageSize] = useState<number>(10)
+  const [searchTotal, setSearchTotal] = useState<number>(0)
+  const [searchTotalPages, setSearchTotalPages] = useState<number>(0)
+  const [searchLoading, setSearchLoading] = useState<boolean>(false)
 
   // 获取借阅记录✅
-  const getBorrowRecords = async () => {
-    setBorrowLoading(true);
+  const getBorrowRecords = async (page = borrowCurrentPage, pageSize = borrowPageSize) => {
+    setBorrowLoading(true)
     try {
-      let queryStatus = "";
+      let queryStatus = ""
       switch (activeTab) {
         case "1":
-          queryStatus = "waiting_return";
-          break;
+          queryStatus = "waiting_return"
+          break
         case "2":
-          queryStatus = "overdue";
-          break;
+          queryStatus = "overdue"
+          break
         case "3":
-          queryStatus = "returned";
-          break;
+          queryStatus = "returned"
+          break
         default:
-          queryStatus = "";
+          queryStatus = ""
       }
+
+      console.log("获取借阅记录，参数:", { page, pageSize, queryStatus })
 
       const result = await fetchBorrowRecords({
-        page: borrowCurrentPage,
-        page_size: borrowPageSize,
+        page: page,
+        page_size: pageSize,
         query_status: queryStatus,
-      });
+      })
 
       if (result.success) {
-        setBorrowRecords(result.data!.items);
-        setBorrowCurrentPage(result.data!.currentPage);
-        setBorrowTotalPages(result.data!.totalPages);
-        setBorrowTotal(result.data!.total);
+        console.log("获取借阅记录成功:", result.data)
+        setBorrowRecords(result.data!.items)
+        setBorrowCurrentPage(result.data!.currentPage)
+        setBorrowTotalPages(result.data!.totalPages)
+        setBorrowTotal(result.data!.total)
       } else {
-        message.error(result.error);
+        message.error(result.error)
 
         // 使用模拟数据
-        const mockData = generateMockBorrowRecords(borrowPageSize);
-        setBorrowRecords(mockData.items);
-        setBorrowTotalPages(mockData.totalPages);
-        setBorrowTotal(mockData.total);
+        const mockData = generateMockBorrowRecords(pageSize)
+        setBorrowRecords(mockData.items)
+        setBorrowTotalPages(mockData.totalPages)
+        setBorrowTotal(mockData.total)
+        setBorrowCurrentPage(page)
       }
     } catch (error) {
-      console.error("获取借阅记录失败:", error);
-      message.error("获取借阅记录失败，请稍后重试");
+      console.error("获取借阅记录失败:", error)
+      message.error("获取借阅记录失败，请稍后重试")
 
       // 使用模拟数据
-      const mockData = generateMockBorrowRecords(borrowPageSize);
-      setBorrowRecords(mockData.items);
-      setBorrowTotalPages(mockData.totalPages);
-      setBorrowTotal(mockData.total);
+      const mockData = generateMockBorrowRecords(pageSize)
+      setBorrowRecords(mockData.items)
+      setBorrowTotalPages(mockData.totalPages)
+      setBorrowTotal(mockData.total)
+      setBorrowCurrentPage(page)
     } finally {
-      setBorrowLoading(false);
+      setBorrowLoading(false)
     }
-  };
+  }
 
   // 搜索图书✅
-  const handleSearch = async () => {
-    const formValues = searchForm.getFieldsValue();
-    setSearchLoading(true);
+  const handleSearch = async (page = searchCurrentPage, pageSize = searchPageSize) => {
+    const formValues = searchForm.getFieldsValue()
+    setSearchLoading(true)
 
     try {
+      console.log("搜索图书，参数:", { ...formValues, page, pageSize })
+
       const result = await searchBooks({
         ...formValues,
-        page: searchCurrentPage,
-        page_size: searchPageSize,
-      });
+        page: page,
+        page_size: pageSize,
+      })
 
       if (result.success) {
-        setSearchResults(result.data!.items);
-        setSearchCurrentPage(result.data!.currentPage);
-        setSearchTotalPages(result.data!.totalPages);
-        setSearchTotal(result.data!.total);
+        console.log("搜索图书成功:", result.data)
+        setSearchResults(result.data!.items)
+        setSearchCurrentPage(result.data!.currentPage)
+        setSearchTotalPages(result.data!.totalPages)
+        setSearchTotal(result.data!.total)
       } else {
-        message.error(result.error);
+        message.error(result.error)
 
         // 使用模拟数据
-        const mockData = generateMockSearchResults(searchPageSize);
-        setSearchResults(mockData.items);
-        setSearchTotalPages(mockData.totalPages);
-        setSearchTotal(mockData.total);
+        const mockData = generateMockSearchResults(pageSize)
+        setSearchResults(mockData.items)
+        setSearchTotalPages(mockData.totalPages)
+        setSearchTotal(mockData.total)
+        setSearchCurrentPage(page)
       }
     } catch (error) {
-      console.error("搜索图书失败:", error);
-      message.error("搜索图书失败，请稍后重试");
+      console.error("搜索图书失败:", error)
+      message.error("搜索图书失败，请稍后重试")
 
       // 使用模拟数据
-      const mockData = generateMockSearchResults(searchPageSize);
-      setSearchResults(mockData.items);
-      setSearchTotalPages(mockData.totalPages);
-      setSearchTotal(mockData.total);
+      const mockData = generateMockSearchResults(pageSize)
+      setSearchResults(mockData.items)
+      setSearchTotalPages(mockData.totalPages)
+      setSearchTotal(mockData.total)
+      setSearchCurrentPage(page)
     } finally {
-      setSearchLoading(false);
+      setSearchLoading(false)
     }
-  };
+  }
 
   // 处理查看详情✅
   const handleViewDetail = (record: BorrowRecordItem) => {
@@ -144,7 +148,7 @@ const BookBorrowPage = () => {
       waiting_return: "待归还",
       returned: "已归还",
       overdue: "已逾期",
-    };
+    }
 
     modal.info({
       title: "借阅详情",
@@ -158,51 +162,60 @@ const BookBorrowPage = () => {
           <p>状态: {statusEtoCMap[record.return_status]}</p>
         </div>
       ),
-    });
-  };
+    })
+  }
 
   // 处理借阅记录分页变化
   const handleBorrowPageChange = (page: number, size?: number) => {
-    const newPageSize = size || borrowPageSize;
-    setBorrowCurrentPage(page);
-    if (size) setBorrowPageSize(size);
+    const newPageSize = size || borrowPageSize
 
-    // 重新获取数据
-    getBorrowRecords();
-  };
+    // 更新状态
+    setBorrowCurrentPage(page)
+    if (size) setBorrowPageSize(newPageSize)
+
+    // 直接传递新的页码和页面大小给数据获取函数
+    getBorrowRecords(page, newPageSize)
+  }
 
   // 处理搜索结果分页变化
   const handleSearchPageChange = (page: number, size?: number) => {
-    const newPageSize = size || searchPageSize;
-    setSearchCurrentPage(page);
-    if (size) setSearchPageSize(size);
+    const newPageSize = size || searchPageSize
 
-    // 重新搜索
-    handleSearch();
-  };
+    // 更新状态
+    setSearchCurrentPage(page)
+    if (size) setSearchPageSize(newPageSize)
+
+    // 直接传递新的页码和页面大小给数据获取函数
+    handleSearch(page, newPageSize)
+  }
 
   // 处理标签页切换
   const handleTabChange = (activeKey: string) => {
-    setActiveTab(activeKey);
-  };
+    setActiveTab(activeKey)
+    // 切换标签页时重置为第一页
+    setBorrowCurrentPage(1)
+  }
 
   // 处理重置
   const handleReset = () => {
-    searchForm.resetFields();
-  };
+    searchForm.resetFields()
+  }
 
   // 处理统计周期变化
   const handlePeriodChange = (value: string) => {
-    console.log("统计周期变化:", value);
+    console.log("统计周期变化:", value)
     // 这里可以添加获取不同周期统计数据的逻辑
-  };
-
+  }
 
   // 初始加载数据
   useEffect(() => {
-    getBorrowRecords();
-    handleSearch();
-  }, [activeTab]);
+    getBorrowRecords(1, borrowPageSize)
+  }, [activeTab])
+
+  // 初始加载搜索数据
+  useEffect(() => {
+    handleSearch(1, searchPageSize)
+  }, [])
 
   return (
     <ConfigProvider
@@ -220,7 +233,7 @@ const BookBorrowPage = () => {
             <Col span={12}>
               <BookSearchForm
                 form={searchForm}
-                onSearch={handleSearch}
+                onSearch={() => handleSearch(1, searchPageSize)}
                 onReset={handleReset}
                 loading={searchLoading}
               />
@@ -251,7 +264,7 @@ const BookBorrowPage = () => {
         </div>
       </div>
     </ConfigProvider>
-  );
-};
+  )
+}
 
-export default BookBorrowPage;
+export default BookBorrowPage

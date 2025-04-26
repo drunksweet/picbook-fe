@@ -1,6 +1,6 @@
-;`use client`
+"use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
   Input,
   Button,
@@ -16,29 +16,33 @@ import {
   Tabs,
   List,
   Timeline,
+  Select,
 } from "antd"
 import type { ColumnsType } from "antd/es/table"
 import { MemberBarChart } from "@/components/echarts/vip/MemberBarChart"
 import VipActionButtons from "@/components/vipManagement/VipActionButtons/VipActionButtons"
 import styles from "./VipManagement.module.scss"
 import MemberTab from "../echarts/vip/MemberTab/MemberTab"
+import { searchVipUsers, type VipUserInfo, type VipSearchRequest } from "@/api/vip/vip"
 
-interface MemberData {
+// 导出MemberData接口以便其他组件使用
+export interface MemberData {
   key: string
   id: number
-  memberNo: string
   name: string
   gender: string
-  contact: string
+  phone: string
   level: string
   status: string
   points: number
+  is_vip: boolean
 }
 
 export default function VipManagement() {
   const [memberName, setMemberName] = useState("")
   const [memberLevel, setMemberLevel] = useState("")
-  const [status, setStatus] = useState("正常")
+  const [status, setStatus] = useState("")
+  const [phone, setPhone] = useState("")
   const [detailModalVisible, setDetailModalVisible] = useState(false)
   const [currentMember, setCurrentMember] = useState<MemberData | null>(null)
   const [pointsExchangeVisible, setPointsExchangeVisible] = useState(false)
@@ -46,119 +50,19 @@ export default function VipManagement() {
   const [bookBorrowVisible, setBookBorrowVisible] = useState(false)
   const [borrowRulesVisible, setBorrowRulesVisible] = useState(false)
 
-  // 模拟会员数据
-  const memberData: MemberData[] = [
-    {
-      key: "1",
-      id: 1,
-      memberNo: "20230201",
-      name: "张三",
-      gender: "女",
-      contact: "18186723357",
-      level: "普通",
-      status: "正常",
-      points: 580,
-    },
-    {
-      key: "2",
-      id: 2,
-      memberNo: "20230202",
-      name: "李四",
-      gender: "男",
-      contact: "15678945877",
-      level: "普通",
-      status: "过期",
-      points: 666,
-    },
-    {
-      key: "3",
-      id: 3,
-      memberNo: "20230203",
-      name: "王五",
-      gender: "女",
-      contact: "11223345674",
-      level: "普通",
-      status: "正常",
-      points: 456,
-    },
-    {
-      key: "4",
-      id: 4,
-      memberNo: "20230204",
-      name: "赵一",
-      gender: "男",
-      contact: "16778905467",
-      level: "银卡",
-      status: "正常",
-      points: 100,
-    },
-    {
-      key: "5",
-      id: 5,
-      memberNo: "20230205",
-      name: "刘宇",
-      gender: "男",
-      contact: "16778543455",
-      level: "金卡",
-      status: "冻结",
-      points: 34,
-    },
-    {
-      key: "6",
-      id: 6,
-      memberNo: "20230206",
-      name: "王瑞",
-      gender: "女",
-      contact: "18345689366",
-      level: "银卡",
-      status: "冻结",
-      points: 57,
-    },
-    {
-      key: "7",
-      id: 7,
-      memberNo: "20230207",
-      name: "田英",
-      gender: "女",
-      contact: "13405678334",
-      level: "普通",
-      status: "冻结",
-      points: 21,
-    },
-    {
-      key: "8",
-      id: 8,
-      memberNo: "20230208",
-      name: "徐慧",
-      gender: "女",
-      contact: "13556789667",
-      level: "银卡",
-      status: "冻结",
-      points: 45,
-    },
-    {
-      key: "9",
-      id: 9,
-      memberNo: "20230209",
-      name: "罗小红",
-      gender: "女",
-      contact: "15698873442",
-      level: "普通",
-      status: "冻结",
-      points: 87,
-    },
-    {
-      key: "10",
-      id: 10,
-      memberNo: "20230210",
-      name: "陈梅",
-      gender: "男",
-      contact: "13398766542",
-      level: "银卡",
-      status: "冻结",
-      points: 789,
-    },
-  ]
+  // 分页状态
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
+  const [total, setTotal] = useState(0)
+  const [loading, setLoading] = useState(false)
+  const [memberData, setMemberData] = useState<MemberData[]>([])
+
+  // 搜索参数状态
+  const [searchParams, setSearchParams] = useState<VipSearchRequest>({
+    page: 1,
+    page_size: 10,
+    is_vip: true,
+  })
 
   // 模拟积分兑换商品数据
   const exchangeItems = [
@@ -171,12 +75,75 @@ export default function VipManagement() {
 
   // 模拟借阅图书数据
   const bookItems = [
-    { id: 1, title: "JavaScript高级程序设计", author: "Nicholas C. Zakas", available: 3 },
-    { id: 2, title: "深入理解计算机系统", author: "Randal E. Bryant", available: 1 },
+    {
+      id: 1,
+      title: "JavaScript高级程序设计",
+      author: "Nicholas C. Zakas",
+      available: 3,
+    },
+    {
+      id: 2,
+      title: "深入理解计算机系统",
+      author: "Randal E. Bryant",
+      available: 1,
+    },
     { id: 3, title: "算法导论", author: "Thomas H. Cormen", available: 2 },
     { id: 4, title: "设计模式", author: "Erich Gamma", available: 0 },
-    { id: 5, title: "数据结构与算法分析", author: "Mark Allen Weiss", available: 4 },
+    {
+      id: 5,
+      title: "数据结构与算法分析",
+      author: "Mark Allen Weiss",
+      available: 4,
+    },
   ]
+
+  // 获取会员数据
+  const fetchMemberData = async () => {
+    setLoading(true)
+    try {
+      console.log("发送请求参数:", searchParams)
+      const response = await searchVipUsers(searchParams)
+
+      if (response.code === 200 && response.data) {
+        // 转换API返回的数据为组件所需格式
+        const formattedData = response.data.users.map((user: VipUserInfo) => ({
+          key: user.id.toString(),
+          id: user.id,
+          name: user.name,
+          gender: user.gender,
+          phone: user.phone,
+          level: user.vip_levels,
+          status: user.status,
+          points: user.integral,
+          is_vip: user.is_vip,
+        }))
+
+        setMemberData(formattedData)
+        setTotal(response.data.total_num)
+      } else {
+        message.error(response.msg || "获取会员数据失败")
+      }
+    } catch (error) {
+      console.error("获取会员数据失败:", error)
+      message.error("获取会员数据失败")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // 当页码或每页条数变化时更新搜索参数并获取数据
+  useEffect(() => {
+    setSearchParams((prev) => ({
+      ...prev,
+      page: currentPage,
+      page_size: pageSize,
+    }))
+  }, [currentPage, pageSize])
+
+  // 当搜索参数变化时获取数据
+  useEffect(() => {
+    fetchMemberData()
+  }, [searchParams])
 
   // 查看会员详情
   const showMemberDetail = (member: MemberData) => {
@@ -222,9 +189,34 @@ export default function VipManagement() {
     }
   }
 
+  // 状态中英映射
+  const statusEtoCMap: Record<string, string> = {
+    normal: "正常",
+    overdue: "过期",
+    freeze: "冻结",
+  }
+
+  const statusColorMap: Record<string, string> = {
+    normal: "green",
+    overdue: "red",
+    freeze: "gray",
+  }
+
+  // 级别中英映射
+  const levelEtoCMap: Record<string, string> = {
+    gold: "金卡",
+    silver: "银卡",
+    normal: "普通",
+  }
+
+  const levelColorMap: Record<string, string> = {
+    gold: "#FFFACD",
+    silver: "#87CEFA",
+    normal: "#FFB6C1",
+  }
+
   const columns: ColumnsType<MemberData> = [
     { title: "序号", dataIndex: "id", key: "id", align: "center" },
-    { title: "会员编号", dataIndex: "memberNo", key: "memberNo", align: "center" },
     { title: "会员姓名", dataIndex: "name", key: "name", align: "center" },
     {
       title: "性别",
@@ -233,16 +225,33 @@ export default function VipManagement() {
       align: "center",
       render: (gender) => <span className={gender === "女" ? styles.femaleText : styles.maleText}>{gender}</span>,
     },
-    { title: "联系方式", dataIndex: "contact", key: "contact", align: "center" },
-    { title: "会员级别", dataIndex: "level", key: "level", align: "center" },
+    { title: "联系方式", dataIndex: "phone", key: "phone", align: "center" },
+    {
+      title: "会员级别",
+      dataIndex: "level",
+      key: "level",
+      align: "center",
+      render: (level: string) => {
+        const levelText = levelEtoCMap[level] || level || "未知级别" // 默认级别文本
+        // 使用级别颜色映射来设置标签颜色
+        const color = levelColorMap[level] || "default" // 默认颜色
+        return (
+          <Tag color={color} style={{ color: "#101010" }}>
+            {levelText}
+          </Tag>
+        )
+      },
+    },
     {
       title: "状态",
       dataIndex: "status",
       key: "status",
       align: "center",
-      render: (status) => {
-        const color = status === "正常" ? "green" : status === "过期" ? "orange" : "red"
-        return <Tag color={color}>{status}</Tag>
+      render: (status: string) => {
+        const statusText = statusEtoCMap[status] || status || "未知状态" // 默认状态文本
+        // 使用状态颜色映射来设置标签颜色
+        const color = statusColorMap[status] || "default" // 默认颜色
+        return <Tag color={color}>{statusText}</Tag>
       },
     },
     { title: "积分", dataIndex: "points", key: "points", align: "center" },
@@ -261,14 +270,43 @@ export default function VipManagement() {
   const handleReset = () => {
     setMemberName("")
     setMemberLevel("")
-    setStatus("正常")
+    setStatus("")
+    setPhone("")
+
+    // 重置搜索参数，但保留分页和is_vip参数
+    setSearchParams({
+      page: 1,
+      page_size: pageSize,
+      is_vip: true,
+    })
+
+    setCurrentPage(1)
     message.success("已重置搜索条件")
   }
 
   const handleSearch = () => {
-    // 实现搜索逻辑
-    message.success("搜索成功")
-    console.log("搜索条件:", { memberName, memberLevel, status })
+    // 更新搜索参数
+    const newParams: VipSearchRequest = {
+      page: 1,
+      page_size: pageSize,
+      is_vip: true,
+    }
+
+    // 添加可选参数
+    if (memberName) newParams.user_name = memberName
+    if (memberLevel) newParams.level = memberLevel
+    if (status) newParams.status = status
+    if (phone) newParams.phone = phone
+
+    // 更新搜索参数状态
+    setSearchParams(newParams)
+    setCurrentPage(1) // 重置到第一页
+  }
+
+  // 处理分页变化
+  const handlePageChange = (page: number, pageSize?: number) => {
+    setCurrentPage(page)
+    if (pageSize) setPageSize(pageSize)
   }
 
   return (
@@ -290,23 +328,35 @@ export default function VipManagement() {
                             placeholder="请输入"
                             value={memberName}
                             onChange={(e) => setMemberName(e.target.value)}
+                            onPressEnter={handleSearch}
                           />
                         </div>
                       </Col>
                       <Col span={6}>
                         <div className={styles.formItem}>
                           <label>会员级别</label>
-                          <Input
-                            placeholder="请输入"
-                            value={memberLevel}
-                            onChange={(e) => setMemberLevel(e.target.value)}
-                          />
+                          <Select
+                            placeholder="请选择"
+                            value={memberLevel || undefined}
+                            onChange={(value) => setMemberLevel(value)}
+                            allowClear
+                            style={{ width: "100%" }}
+                          >
+                            <Select.Option value="normal">普通会员</Select.Option>
+                            <Select.Option value="silver">银卡会员</Select.Option>
+                            <Select.Option value="gold">金卡会员</Select.Option>
+                          </Select>
                         </div>
                       </Col>
                       <Col span={6}>
                         <div className={styles.formItem}>
-                          <label>所有状态</label>
-                          <Input placeholder="正常" value={status} onChange={(e) => setStatus(e.target.value)} />
+                          <label>联系方式</label>
+                          <Input
+                            placeholder="请输入手机号"
+                            value={phone}
+                            onChange={(e) => setPhone(e.target.value)}
+                            onPressEnter={handleSearch}
+                          />
                         </div>
                       </Col>
                       <Col span={6} className={styles.buttonGroup}>
@@ -362,14 +412,22 @@ export default function VipManagement() {
                       pagination={false}
                       className={styles.memberTable}
                       rowClassName={(record, index) => (index % 2 === 0 ? styles.evenRow : styles.oddRow)}
+                      loading={loading}
+                      locale={{ emptyText: "暂无会员数据" }}
                     />
 
                     <div className={styles.paginationWrapper}>
                       <Pagination
-                        defaultCurrent={1}
-                        total={100}
+                        current={currentPage}
+                        pageSize={pageSize}
+                        total={total}
                         showSizeChanger
                         showQuickJumper
+                        onChange={handlePageChange}
+                        onShowSizeChange={(current, size) => {
+                          setCurrentPage(1)
+                          setPageSize(size)
+                        }}
                         className={styles.pagination}
                       />
                     </div>
@@ -383,7 +441,8 @@ export default function VipManagement() {
                     <MemberTab />
 
                     <div className={styles.chartContainer}>
-                      <MemberBarChart />
+                      {/* 将会员数据传递给MemberBarChart组件 */}
+                      <MemberBarChart memberData={memberData} loading={loading} />
                     </div>
                   </Card>
                 </div>
@@ -409,16 +468,18 @@ export default function VipManagement() {
           <Tabs defaultActiveKey="1">
             <Tabs.TabPane tab="基本信息" key="1">
               <Descriptions bordered column={2}>
-                <Descriptions.Item label="会员编号">{currentMember.memberNo}</Descriptions.Item>
+                <Descriptions.Item label="会员ID">{currentMember.id}</Descriptions.Item>
                 <Descriptions.Item label="会员姓名">{currentMember.name}</Descriptions.Item>
                 <Descriptions.Item label="性别">{currentMember.gender}</Descriptions.Item>
-                <Descriptions.Item label="联系方式">{currentMember.contact}</Descriptions.Item>
-                <Descriptions.Item label="会员级别">{currentMember.level}</Descriptions.Item>
-                <Descriptions.Item label="状态">{currentMember.status}</Descriptions.Item>
+                <Descriptions.Item label="联系方式">{currentMember.phone}</Descriptions.Item>
+                <Descriptions.Item label="会员级别">
+                  {levelEtoCMap[currentMember.level] || currentMember.level}
+                </Descriptions.Item>
+                <Descriptions.Item label="状态">
+                  {statusEtoCMap[currentMember.status] || currentMember.status}
+                </Descriptions.Item>
                 <Descriptions.Item label="积分">{currentMember.points}</Descriptions.Item>
-                <Descriptions.Item label="注册时间">2023-02-01</Descriptions.Item>
-                <Descriptions.Item label="最近活动时间">2023-04-15</Descriptions.Item>
-                <Descriptions.Item label="备注">活跃会员</Descriptions.Item>
+                <Descriptions.Item label="是否为VIP">{currentMember.is_vip ? "是" : "否"}</Descriptions.Item>
               </Descriptions>
             </Tabs.TabPane>
             <Tabs.TabPane tab="借阅记录" key="2">
@@ -495,7 +556,7 @@ export default function VipManagement() {
           <li key="borrow-book">每次借书：+10积分</li>
           <li key="return-book">按时归还图书：+20积分</li>
           <li key="activity">参与读书活动：+50积分</li>
-          <li key="buy-book">购买图书：每消费10元 +1积分</li>
+          <li key="buy-book">购买图书：每消费10元 +1���分</li>
           <li key="recommend">推荐新会员：+50积分</li>
         </ul>
         <h3>会员等级规则</h3>
@@ -521,12 +582,13 @@ export default function VipManagement() {
         width={600}
       >
         <p>当前会员：{currentMember ? currentMember.name : "请先选择会员"}</p>
-        <p>会员级别：{currentMember ? currentMember.level : "-"}</p>
+        <p>会员级别：{currentMember ? levelEtoCMap[currentMember.level] || currentMember.level : "-"}</p>
         <List
           itemLayout="horizontal"
           dataSource={bookItems}
           renderItem={(item) => (
             <List.Item
+              key={item.id}
               actions={[
                 <Button
                   type="primary"

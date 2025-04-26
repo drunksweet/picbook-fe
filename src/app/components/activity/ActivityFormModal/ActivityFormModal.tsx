@@ -1,7 +1,6 @@
-import { Modal, Form, Input, Select, DatePicker, TimePicker, InputNumber, Row, Col } from "antd"
-import { ActivityData } from "../ActivityCard/ActivityCard"
-import { FormInstance } from "antd/lib/form"
-import dayjs from "dayjs"
+import { Modal, Form, Input, Select, DatePicker, TimePicker, Row, Col } from "antd"
+import type { ActivityData } from "../ActivityCard/ActivityCard"
+import type { FormInstance } from "antd/lib/form"
 
 const { TextArea } = Input
 const { Option } = Select
@@ -34,17 +33,16 @@ export default function ActivityFormModal({
       cancelText="取消"
     >
       <Form form={form} layout="vertical">
-        <Form.Item name="title" label="活动名称" rules={[{ required: true, message: "请输入活动名称" }]}>
+        <Form.Item name="activity_name" label="活动名称" rules={[{ required: true, message: "请输入活动名称" }]}>
           <Input placeholder="请输入活动名称" />
         </Form.Item>
 
-        <Form.Item name="type" label="活动类型" rules={[{ required: true, message: "请选择活动类型" }]}>
+        <Form.Item name="activity_type" label="活动类型" rules={[{ required: true, message: "请选择活动类型" }]}>
           <Select placeholder="请选择活动类型">
-            <Option value="亲子互动">亲子互动</Option>
-            <Option value="休闲娱乐">休闲娱乐</Option>
-            <Option value="文体活动">文体活动</Option>
-            <Option value="知识讲座">知识讲座</Option>
-            <Option value="志愿服务">志愿服务</Option>
+            <Option value="parent_child_interactions">亲子互动</Option>
+            <Option value="handmade_diy">手工DIY</Option>
+            <Option value="theme_experience">主题体验</Option>
+            <Option value="role_play">角色扮演</Option>
           </Select>
         </Form.Item>
 
@@ -68,27 +66,15 @@ export default function ActivityFormModal({
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item name="contact" label="联系方式" rules={[{ required: true, message: "请输入联系方式" }]}>
+            <Form.Item name="phone" label="联系方式" rules={[{ required: true, message: "请输入联系方式" }]}>
               <Input placeholder="请输入联系方式" />
             </Form.Item>
           </Col>
         </Row>
 
-        <Form.Item name="location" label="活动地点" rules={[{ required: true, message: "请输入活动地点" }]}>
+        <Form.Item name="addr" label="活动地点" rules={[{ required: true, message: "请输入活动地点" }]}>
           <Input placeholder="请输入活动地点" />
         </Form.Item>
-
-        <Row gutter={16}>
-          <Col span={12}>
-            <Form.Item
-              name="maxParticipants"
-              label="最大参与人数"
-              rules={[{ required: true, message: "请输入最大参与人数" }]}
-            >
-              <InputNumber min={1} style={{ width: "100%" }} />
-            </Form.Item>
-          </Col>
-        </Row>
 
         <Form.Item name="description" label="活动描述">
           <TextArea rows={4} placeholder="请输入活动描述" />

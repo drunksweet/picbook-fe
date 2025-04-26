@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { ConfigProvider, App, Row, Col } from "antd"
 import { FileTextOutlined, UserOutlined, NotificationOutlined, BarChartOutlined } from "@ant-design/icons"
 import { Form } from "antd"
@@ -9,7 +9,7 @@ import dayjs from "dayjs"
 import Banner from "@/components/banner"
 import StatisticCard from "@/components/activity/StatisticCard"
 import FunctionButtons from "@/components/activity/FunctionButtons"
-import ActivityList from "@/components/activity/ActivityList/ActivityList"
+import ActivityList, { type ActivityListRef } from "@/components/activity/ActivityList/ActivityList"
 import AnnouncementList from "@/components/activity/Announce/AnnouncementList"
 import ActivityFormModal from "@/components/activity/ActivityFormModal/ActivityFormModal"
 import ActivityDetailModal from "@/components/activity/ActivityDetailModal/ActivityDetailModal"
@@ -22,6 +22,7 @@ import FeedbackDrawer from "@/components/activity/FeedbackDrawer"
 import NotificationDrawer from "@/components/activity/NotificationDrawer"
 import type { ActivityData } from "@/components/activity/ActivityCard/ActivityCard"
 import type { AnnouncementData } from "@/components/activity/Announce/AnnouncementItem"
+import { createActivity, updateActivity } from "@/api/activity/activity"
 
 import "./page.scss"
 
@@ -43,6 +44,10 @@ const ActivityManagementPage = () => {
   const [form] = Form.useForm()
   const [announceForm] = Form.useForm()
   const [editForm] = Form.useForm()
+  const [loading, setLoading] = useState(false)
+
+  // 创建对ActivityList的引用
+  const activityListRef = useRef<ActivityListRef>(null)
 
   // 统计数据
   const statistics = [
@@ -101,62 +106,6 @@ const ActivityManagementPage = () => {
       trendType: "up" as "up" | "down",
     },
   ]
-
-  // 活动数据
-  const [activities, setActivities] = useState<ActivityData[]>([
-    {
-      id: "1",
-      title: "亲子故事分享会",
-      type: "亲子互动",
-      time: "2024-01-31 10:30-12:30",
-      manager: "陈志*",
-      contact: "189****4032",
-      location: "23幢1单元1楼单元门进入XXXXXXXXXXXXXXXXX",
-      status: "报名中",
-      maxParticipants: 30,
-      currentParticipants: 15,
-      description: "亲子故事分享会将带领孩子们一起探索有趣的故事世界，培养阅读兴趣和良好习惯。",
-    },
-    {
-      id: "2",
-      title: "社区棋牌比赛",
-      type: "休闲娱乐",
-      time: "2024-02-15 14:00-17:00",
-      manager: "王建*",
-      contact: "135****6789",
-      location: "小区活动中心二楼",
-      status: "进行中",
-      maxParticipants: 50,
-      currentParticipants: 42,
-      description: "社区棋牌比赛旨在丰富社区居民的文化生活，促进邻里交流。",
-    },
-    {
-      id: "3",
-      title: "健康讲座",
-      type: "知识讲座",
-      time: "2024-01-20 09:00-11:00",
-      manager: "李美*",
-      contact: "156****2345",
-      location: "小区多功能厅",
-      status: "已结束",
-      maxParticipants: 100,
-      currentParticipants: 87,
-      description: "健康讲座由专业医生为社区居民提供健康知识普及，关注社区居民身心健康。",
-    },
-    {
-      id: "4",
-      title: "广场舞培训",
-      type: "文体活动",
-      time: "2024-02-05 19:00-20:30",
-      manager: "张丽*",
-      contact: "177****5678",
-      location: "小区中央广场",
-      status: "报名中",
-      maxParticipants: 40,
-      currentParticipants: 22,
-      description: "广场舞培训活动旨在丰富社区居民的业余生活，提升身体健康水平。",
-    },
-  ])
 
   // 通知公告数据
   const [announcements, setAnnouncements] = useState<AnnouncementData[]>([
@@ -241,35 +190,45 @@ const ActivityManagementPage = () => {
     setCreateModalVisible(true)
   }
 
-  const handleCreateOk = () => {
-    form
-      .validateFields()
-      .then((values) => {
-        const timeRange = values.timeRange
-        const startTime = timeRange[0].format("HH:mm")
-        const endTime = timeRange[1].format("HH:mm")
+  const handleCreateOk = async () => {
+    try {
+      setLoading(true)
+      const values = await form.validateFields()
 
-        const newActivity = {
-          id: String(activities.length + 1),
-          title: values.title,
-          type: values.type,
-          time: `${values.date.format("YYYY-MM-DD")} ${startTime}-${endTime}`,
+      // 格式化日期和时间
+      const date = values.date.format("YYYY-MM-DD")
+      const startTime = values.timeRange[0].format("HH:mm:ss")
+      const endTime = values.timeRange[1].format("HH:mm:ss")
+
+      // 构建请求数据
+      const requestData = {
+        info: {
+          activity_name: values.activity_name,
+          activity_type: values.activity_type,
+          addr: values.addr,
           manager: values.manager,
-          contact: values.contact,
-          location: values.location,
-          status: "报名中",
-          maxParticipants: values.maxParticipants,
-          currentParticipants: 0,
-          description: values.description,
-        }
+          phone: values.phone,
+          start_time: `${date} ${startTime}`,
+          end_time: `${date} ${endTime}`,
+        },
+      }
 
-        setActivities([...activities, newActivity])
-        message.success("活动创建成功！")
-        setCreateModalVisible(false)
-      })
-      .catch((info) => {
-        console.log("验证失败:", info)
-      })
+      // 调用API创建活动
+      const response = await createActivity(requestData)
+
+      message.success("活动创建成功！")
+      setCreateModalVisible(false)
+
+      // 刷新活动列表
+      if (activityListRef.current) {
+        activityListRef.current.refreshList()
+      }
+    } catch (error) {
+      console.error("创建活动失败:", error)
+      message.error("创建活动失败，请重试！")
+    } finally {
+      setLoading(false)
+    }
   }
 
   // 编辑活动相关函数
@@ -284,52 +243,64 @@ const ActivityManagementPage = () => {
     const endTime = timePart.split("-")[1]
 
     editForm.setFieldsValue({
-      title: activity.title,
-      type: activity.type,
+      activity_name: activity.title,
+      activity_type: activity.type,
       date: dayjs(datePart),
       timeRange: [dayjs(startTime, "HH:mm"), dayjs(endTime, "HH:mm")],
       manager: activity.manager,
-      contact: activity.contact,
-      location: activity.location,
-      maxParticipants: activity.maxParticipants,
+      phone: activity.contact,
+      addr: activity.location,
       description: activity.description,
     })
 
     setEditModalVisible(true)
   }
 
-  const handleEditOk = () => {
-    editForm
-      .validateFields()
-      .then((values) => {
-        const timeRange = values.timeRange
-        const startTime = timeRange[0].format("HH:mm")
-        const endTime = timeRange[1].format("HH:mm")
+  const handleEditOk = async () => {
+    if (!currentActivity) {
+      message.error("当前编辑的活动不存在！")
+      return
+    }
 
-        const updatedActivities = activities.map((activity) => {
-          if (activity.id === currentActivity?.id) {
-            return {
-              ...activity,
-              title: values.title,
-              type: values.type,
-              time: `${values.date.format("YYYY-MM-DD")} ${startTime}-${endTime}`,
-              manager: values.manager,
-              contact: values.contact,
-              location: values.location,
-              maxParticipants: values.maxParticipants,
-              description: values.description,
-            }
-          }
-          return activity
-        })
+    try {
+      setLoading(true)
+      const values = await editForm.validateFields()
 
-        setActivities(updatedActivities)
-        message.success("活动修改成功！")
-        setEditModalVisible(false)
-      })
-      .catch((info) => {
-        console.log("验证失败:", info)
-      })
+      // 格式化日期和时间
+      const date = values.date.format("YYYY-MM-DD")
+      const startTime = values.timeRange[0].format("HH:mm:ss")
+      const endTime = values.timeRange[1].format("HH:mm:ss")
+
+      // 构建请求数据
+      const requestData = {
+        activity_id: Number.parseInt(currentActivity.id),
+        info: {
+          activity_name: values.activity_name,
+          activity_type: values.activity_type,
+          addr: values.addr,
+          manager: values.manager,
+          phone: values.phone,
+          start_time: `${date} ${startTime}`,
+          end_time: `${date} ${endTime}`,
+        },
+      }
+
+      // 调用API更新活动
+      await updateActivity(requestData)
+
+      message.success("活动修改成功！")
+      setEditModalVisible(false)
+
+      // 刷新活动列表
+      if (activityListRef.current) {
+        activityListRef.current.refreshList()
+      }
+    } catch (error) {
+      console.error("更新活动失败:", error)
+      message.error("更新活动失败，请重试！")
+    } finally {
+      setLoading(false)
+    }
   }
 
   // 取消活动相关函数
@@ -339,19 +310,13 @@ const ActivityManagementPage = () => {
   }
 
   const handleCancelActivity = () => {
-    const updatedActivities = activities.map((activity) => {
-      if (activity.id === currentActivity?.id) {
-        return {
-          ...activity,
-          status: "已取消",
-        }
-      }
-      return activity
-    })
-
-    setActivities(updatedActivities)
     message.success("活动已取消！")
     setCancelModalVisible(false)
+
+    // 刷新活动列表
+    if (activityListRef.current) {
+      activityListRef.current.refreshList()
+    }
   }
 
   // 查看活动详情
@@ -467,7 +432,7 @@ const ActivityManagementPage = () => {
             {/* 活动列表 */}
             <div style={{ marginTop: 16 }}>
               <ActivityList
-                activities={activities}
+                ref={activityListRef}
                 activeTab={activeTab}
                 onTabChange={handleTabChange}
                 onSearch={handleSearch}
@@ -562,7 +527,7 @@ const ActivityManagementPage = () => {
       <NotificationDrawer
         visible={notificationDrawerVisible}
         onClose={() => setNotificationDrawerVisible(false)}
-        activities={activities}
+        activities={[]}
       />
     </ConfigProvider>
   )

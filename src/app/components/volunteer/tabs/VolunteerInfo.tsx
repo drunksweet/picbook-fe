@@ -414,7 +414,7 @@ const VolunteerInfo = () => {
         </Card>
       </Col>
       <Col span={6}>
-        <Card className="simple-volunteer-list" title="志愿者列表">
+        <Card className="simple-volunteer-list" title="志愿者申请列表">
           <Table
             columns={simpleColumns}
             dataSource={simpleVolunteerList}

@@ -13,11 +13,6 @@ export default function MemberTab() {
         items={[
           {
             key: "1",
-            label: "排名统计",
-            children: <MemberBarChart />,
-          },
-          {
-            key: "2",
             label: "图标统计",
             children: <MemberChartsContainer />,
           },
