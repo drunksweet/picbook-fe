@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 
 // 不需要鉴权的路由列表
-const publicRoutes = ["/login"]
+const publicRoutes = ["/login", "/register", "/forgot-password"]
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
@@ -40,6 +40,6 @@ export const config = {
      * - _next（Next.js内部路由）
      * - 静态文件（images, files等）
      */
-    "/((?!api|_next/static|_next/image|favicon.ico|login).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico|login|register|forgot-password).*)",
   ],
 }
