@@ -149,7 +149,7 @@ const ActivityList = forwardRef<ActivityListRef, ActivityListProps>(
           })
 
     return (
-      <Card className="section-card">
+      <Card className="list-card">
         <div className="section-header">
           <div className="tabs-container">
             <Button type={activeTab === "all" ? "primary" : "default"} onClick={() => onTabChange("all")}>

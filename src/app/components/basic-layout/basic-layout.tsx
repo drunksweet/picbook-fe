@@ -123,12 +123,19 @@ export function AntdLayout({ children }: { children: React.ReactNode }) {
           }}
         >
           <Header
-            style={{ display: "flex", alignItems: "center", flex: "0 0 auto" }}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              flex: "0 0 auto",
+              height: "5vh",
+            }}
           >
             <img src="/pic_book_logo@2x.png" alt="Logo" width={30}></img>
             <h1 className="project-name">“爱孩子的书”绘本馆</h1>
           </Header>
-          <div style={{ padding: "0 0px" }}>
+          <div
+            style={{ padding: "0 0px", maxHeight: "95vh"}}
+          >
             <Layout
               style={{
                 padding: "0px 0",
@@ -137,7 +144,7 @@ export function AntdLayout({ children }: { children: React.ReactNode }) {
               }}
             >
               <Sider
-                style={{ background: "#fdead0" }}
+                style={{ background: "#fdead0", width: "20vw" }}
                 width={160}
                 theme="light"
               >

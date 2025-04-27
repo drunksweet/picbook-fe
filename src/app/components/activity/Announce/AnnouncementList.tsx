@@ -18,7 +18,7 @@ export default function AnnouncementList({
   onViewDetail,
 }: AnnouncementListProps) {
   return (
-    <Card className="section-card">
+    <Card className="annouce-card">
       <div className="section-header">
         <h3>通知公告</h3>
         <div>

@@ -1,6 +1,8 @@
-.section-card {
+.annouce-card {
   border-radius: 8px;
-  overflow: hidden;
+  overflow: auto;
+  box-sizing: border-box;
+  max-height: 71vh;
 
   .section-header {
     display: flex;
@@ -16,7 +18,6 @@
   }
 
   .announcement-list {
-    max-height: 430px;
     overflow-y: auto;
   }
 }

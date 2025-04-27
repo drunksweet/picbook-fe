@@ -47,16 +47,26 @@ export interface CreateActivityRequest {
   info: ActivityInfo
 }
 
+// 更新活动请求接口
+export interface UpdateActivityRequest {
+  activity_id: number
+  info: ActivityInfo
+}
+
 // 创建活动响应接口
 export interface CreateActivityResponse {
   activity_id: number
 }
 
-// 更新活动请求接口
-export interface UpdateActivityRequest {
-    activity_id: number
-    info: ActivityInfo
-  }
+// 活动统计数据接口
+export interface ActivityStaticsResponse {
+  activity_participation_rate: number
+  ended_num: number
+  ongoing_num: number
+  total_applicants: number
+  total_num: number
+  upcoming_num: number
+}
 
 // API响应接口
 interface ApiResponse<T> {
@@ -107,19 +117,45 @@ export const createActivity = async (data: CreateActivityRequest): Promise<Creat
   }
 }
 
+// 更新活动
 export const updateActivity = async (data: UpdateActivityRequest): Promise<void> => {
-    try {
-      const response = await axiosInstance.put<ApiResponse<{}>>("/v1/activity/update", data)
-  
-      if (response.data.code !== 200) {
-        console.error("更新活动失败:", response.data.msg)
-        throw new Error(response.data.msg || "更新活动失败")
-      }
-    } catch (error) {
-      console.error("更新活动失败:", error)
-      throw error
+  try {
+    const response = await axiosInstance.put<ApiResponse<{}>>("/v1/activity/update", data)
+
+    if (response.data.code !== 200) {
+      console.error("更新活动失败:", response.data.msg)
+      throw new Error(response.data.msg || "更新活动失败")
+    }
+  } catch (error) {
+    console.error("更新活动失败:", error)
+    throw error
+  }
+}
+
+// 获取活动统计数据
+export const getActivityStatics = async (): Promise<ActivityStaticsResponse> => {
+  try {
+    const response = await axiosInstance.get<ApiResponse<ActivityStaticsResponse>>("/v1/activity/get_statics")
+
+    if (response.data.code === 200 && response.data.data) {
+      return response.data.data
+    } else {
+      console.error("获取活动统计数据失败:", response.data.msg)
+      throw new Error(response.data.msg || "获取活动统计数据失败")
+    }
+  } catch (error) {
+    console.error("获取活动统计数据失败:", error)
+    // 返回默认数据，避免页面崩溃
+    return {
+      activity_participation_rate: 0,
+      ended_num: 0,
+      ongoing_num: 0,
+      total_applicants: 0,
+      total_num: 0,
+      upcoming_num: 0,
     }
   }
+}
 
 // 状态映射
 export const statusMapping: Record<string, string> = {

@@ -18,8 +18,8 @@ interface BookSearchFormProps {
 
 const BookSearchForm: React.FC<BookSearchFormProps> = ({ form, onSearch, onReset, loading }) => {
   return (
-    <Card className="book-search-form" variant="outlined">
-      <Title level={5} style={{ color: "#F59A23",marginTop: '-8px'}}>
+    <Card className="book-search-form" variant="outlined" >
+      <Title level={5} style={{ color: "#F59A23"}}>
         绘本信息
       </Title>
       <Form form={form} layout="vertical">

@@ -1,6 +1,7 @@
-.section-card {
+.list-card {
     border-radius: 8px;
-    overflow: hidden;
+    max-height: 60vh;
+    overflow: auto;
   
     .section-header {
       display: flex;
@@ -35,7 +36,6 @@
   
     .activity-list {
       width: 100%;
-      max-height: 430px;
       overflow-x: hidden;
       overflow-y: auto;
     }

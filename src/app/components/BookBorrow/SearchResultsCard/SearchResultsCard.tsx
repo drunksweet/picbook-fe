@@ -91,7 +91,7 @@ const SearchResultsCard: React.FC<SearchResultsCardProps> = ({
   return (
     <Card className="search-results-card" variant="outlined">
       <div className="results-header">
-        <Title level={5} style={{ color: "#F59A23", marginBottom: '8px' }}>
+        <Title level={5} style={{ color: "#F59A23", marginBottom: '0px' }}>
           结果：
         </Title>
       </div>
@@ -103,7 +103,7 @@ const SearchResultsCard: React.FC<SearchResultsCardProps> = ({
           total={searchTotal}
           pageSize={searchPageSize}
           onPageChange={onPageChange}
-          scroll={{ x: "max-content", y: 49 * 10 }}
+          scroll={{ x: "max-content", y: "calc(75vh - 300px)" }}
           tableProps={{
             loading: searchLoading,
             // rowSelection: rowSelection,

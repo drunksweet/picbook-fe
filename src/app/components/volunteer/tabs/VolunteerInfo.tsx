@@ -1,19 +1,51 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Row, Col, Card, Button, Input, Table, Pagination, Space, message, Modal, Form } from "antd"
-import { SearchOutlined, PlusOutlined, PrinterOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons"
-import "./VolunteerInfo.scss"
+import { useState, useEffect } from "react";
+import {
+  Row,
+  Col,
+  Card,
+  Button,
+  Input,
+  Table,
+  Pagination,
+  Space,
+  message,
+  Modal,
+  Form,
+  Spin,
+} from "antd";
+import {
+  SearchOutlined,
+  PlusOutlined,
+  PrinterOutlined,
+  EditOutlined,
+  DeleteOutlined,
+} from "@ant-design/icons";
+import {
+  getVolunteerList,
+  createVolunteer,
+  getVolunteerApplicationList,
+} from "@/api/volunteer/volunteer";
+import "./VolunteerInfo.scss";
 
 const VolunteerInfo = () => {
-  const [searchText, setSearchText] = useState("")
-  const [currentPage, setCurrentPage] = useState(1)
-  const [pageSize, setPageSize] = useState(10)
-  const [isAddModalVisible, setIsAddModalVisible] = useState(false)
-  const [isEditModalVisible, setIsEditModalVisible] = useState(false)
-  const [currentVolunteer, setCurrentVolunteer] = useState<any>(null)
-  const [form] = Form.useForm()
-  const [editForm] = Form.useForm()
+  const [searchText, setSearchText] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [total, setTotal] = useState(0);
+  const [isAddModalVisible, setIsAddModalVisible] = useState(false);
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [currentVolunteer, setCurrentVolunteer] = useState<any>(null);
+  const [form] = Form.useForm();
+  const [editForm] = Form.useForm();
+  const [loading, setLoading] = useState(false);
+  const [applicationLoading, setApplicationLoading] = useState(false);
+  const [volunteerData, setVolunteerData] = useState<any[]>([]);
+  const [applicationData, setApplicationData] = useState<any[]>([]);
+  const [applicationTotal, setApplicationTotal] = useState(0);
+  const [applicationCurrentPage, setApplicationCurrentPage] = useState(1);
+  const [applicationPageSize, setApplicationPageSize] = useState(10);
 
   // 表格列定义
   const columns = [
@@ -23,6 +55,8 @@ const VolunteerInfo = () => {
       key: "index",
       width: 60,
       align: "center" as const,
+      render: (_: any, __: any, index: number) =>
+        (currentPage - 1) * pageSize + index + 1,
     },
     {
       title: "ID",
@@ -40,11 +74,13 @@ const VolunteerInfo = () => {
     },
     {
       title: "联系方式",
-      dataIndex: "contact",
-      key: "contact",
+      dataIndex: "phone",
+      key: "phone",
       width: 120,
       align: "center" as const,
-      render: (text: string) => <span style={{ color: "#F59A23" }}>{text}</span>,
+      render: (text: string) => (
+        <span style={{ color: "#F59A23" }}>{text}</span>
+      ),
     },
     {
       title: "年龄",
@@ -55,24 +91,28 @@ const VolunteerInfo = () => {
     },
     {
       title: "服务时间偏好",
-      dataIndex: "timePreference",
-      key: "timePreference",
+      dataIndex: "serviceTimePreference",
+      key: "serviceTimePreference",
       width: 120,
       align: "center" as const,
     },
     {
       title: "擅长领域",
-      dataIndex: "skills",
-      key: "skills",
+      dataIndex: "expertiseArea",
+      key: "expertiseArea",
       width: 120,
       align: "center" as const,
     },
     {
       title: "注册时间",
-      dataIndex: "registerTime",
-      key: "registerTime",
+      dataIndex: "createdAt",
+      key: "createdAt",
       width: 120,
       align: "center" as const,
+      render: (text: string) => {
+        const date = new Date(text);
+        return date.toLocaleDateString();
+      },
     },
     {
       title: "操作",
@@ -100,209 +140,163 @@ const VolunteerInfo = () => {
         </Space>
       ),
     },
-  ]
-
-  // 模拟数据
-  const data = [
-    {
-      key: "1",
-      index: 1,
-      id: "20230201",
-      name: "张三",
-      contact: "18173456234",
-      age: 21,
-      timePreference: "上午",
-      skills: "前台接待",
-      registerTime: "2025-01-05",
-    },
-    {
-      key: "2",
-      index: 2,
-      id: "20230202",
-      name: "李斯",
-      contact: "13345679921",
-      age: 22,
-      timePreference: "上午",
-      skills: "绘本整理",
-      registerTime: "2025-01-05",
-    },
-    {
-      key: "3",
-      index: 3,
-      id: "20230203",
-      name: "王五",
-      contact: "15667233125",
-      age: 24,
-      timePreference: "中午",
-      skills: "活动执行",
-      registerTime: "2025-01-05",
-    },
-    {
-      key: "4",
-      index: 4,
-      id: "20230204",
-      name: "赵明",
-      contact: "16798634211",
-      age: 20,
-      timePreference: "上午",
-      skills: "前台接待",
-      registerTime: "2025-01-05",
-    },
-    {
-      key: "5",
-      index: 5,
-      id: "20230205",
-      name: "刘璐",
-      contact: "17277188923",
-      age: 19,
-      timePreference: "下午",
-      skills: "前台接待",
-      registerTime: "2025-01-05",
-    },
-    {
-      key: "6",
-      index: 6,
-      id: "20230206",
-      name: "张小玉",
-      contact: "15437719885",
-      age: 18,
-      timePreference: "下午",
-      skills: "绘本整理",
-      registerTime: "2025-01-05",
-    },
-    {
-      key: "7",
-      index: 7,
-      id: "20230207",
-      name: "于新",
-      contact: "18823367899",
-      age: 20,
-      timePreference: "下午",
-      skills: "活动执行",
-      registerTime: "2025-01-05",
-    },
-    {
-      key: "8",
-      index: 8,
-      id: "20230208",
-      name: "叶欣然",
-      contact: "15567722389",
-      age: 22,
-      timePreference: "下午",
-      skills: "绘本整理",
-      registerTime: "2025-01-05",
-    },
-    {
-      key: "9",
-      index: 9,
-      id: "20230209",
-      name: "刘玉",
-      contact: "13388897654",
-      age: 19,
-      timePreference: "晚上",
-      skills: "课程辅导",
-      registerTime: "2025-01-05",
-    },
-    {
-      key: "10",
-      index: 10,
-      id: "20230210",
-      name: "向晨",
-      contact: "13234455551",
-      age: 19,
-      timePreference: "中午",
-      skills: "前台接待",
-      registerTime: "2025-01-05",
-    },
-  ]
-
-  // 简化的志愿者列表数据
-  const simpleVolunteerList = [
-    { key: "1", name: "张三", contact: "18173456234", age: 21 },
-    { key: "2", name: "李斯", contact: "18173456234", age: 22 },
-    { key: "3", name: "王五", contact: "15667233125", age: 24 },
-    { key: "4", name: "赵明", contact: "16798634211", age: 20 },
-    { key: "5", name: "刘璐", contact: "17277188923", age: 19 },
-    { key: "6", name: "张小玉", contact: "15437719885", age: 18 },
-    { key: "7", name: "于新", contact: "18823367899", age: 20 },
-    { key: "8", name: "叶欣然", contact: "15567722389", age: 22 },
-  ]
+  ];
 
   // 简化的志愿者列表列定义
   const simpleColumns = [
     {
       title: "序号",
-      dataIndex: "key",
-      key: "key",
-      width: 60,
+      key: "index",
       align: "center" as const,
+      render: (_: any, __: any, index: number) =>
+        (applicationCurrentPage - 1) * applicationPageSize + index + 1,
     },
     {
       title: "姓名",
       dataIndex: "name",
       key: "name",
-      width: 80,
       align: "center" as const,
     },
     {
       title: "联系方式",
-      dataIndex: "contact",
-      key: "contact",
-      width: 120,
+      dataIndex: "phone",
+      key: "phone",
       align: "center" as const,
     },
     {
       title: "年龄",
       dataIndex: "age",
       key: "age",
-      width: 60,
       align: "center" as const,
     },
     {
       title: "操作",
       key: "action",
-      width: 80,
+
       align: "center" as const,
-      render: (_, record) => (
-        <Button type="link" style={{ color: "#F59A23", padding: "0" }} onClick={() => handleViewDetail(record)}>
+      render: (_: any, record: any) => (
+        <Button
+          type="link"
+          style={{ color: "#F59A23", padding: "0" }}
+          onClick={() => handleViewDetail(record)}
+        >
           查看
         </Button>
       ),
     },
-  ]
+  ];
+
+  // 获取志愿者列表数据
+  const fetchVolunteerList = async () => {
+    setLoading(true);
+    try {
+      const params = {
+        page: currentPage,
+        page_size: pageSize,
+      };
+
+      const response = await getVolunteerList(params);
+
+      // 转换API返回的数据为表格所需格式
+      const formattedData = response.volunteers.map((volunteer: any) => ({
+        key: volunteer.id.toString(),
+        id: volunteer.id,
+        name: volunteer.name,
+        phone: volunteer.phone,
+        age: volunteer.age,
+        serviceTimePreference: volunteer.serviceTimePreference,
+        expertiseArea: volunteer.expertiseArea,
+        createdAt: volunteer.createdAt,
+      }));
+
+      setVolunteerData(formattedData);
+      setTotal(response.total);
+    } catch (error) {
+      console.error("获取志愿者列表失败:", error);
+      message.error("获取志愿者列表失败");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 获取志愿者申请列表数据
+  const fetchApplicationList = async () => {
+    setApplicationLoading(true);
+    try {
+      const params = {
+        page: applicationCurrentPage,
+        page_size: applicationPageSize,
+      };
+
+      const response = await getVolunteerApplicationList(params);
+
+      // 转换API返回的数据为表格所需格式
+      const formattedData = response.applications.map((application: any) => ({
+        key: application.id.toString(),
+        id: application.id,
+        name: application.name,
+        phone: application.phone,
+        age: application.age,
+      }));
+
+      setApplicationData(formattedData);
+      setApplicationTotal(response.total);
+    } catch (error) {
+      console.error("获取志愿者申请列表失败:", error);
+      message.error("获取志愿者申请列表失败");
+    } finally {
+      setApplicationLoading(false);
+    }
+  };
+
+  // 初始加载和参数变化时获取数据
+  useEffect(() => {
+    fetchVolunteerList();
+  }, [currentPage, pageSize, searchText]);
+
+  useEffect(() => {
+    fetchApplicationList();
+  }, [applicationCurrentPage, applicationPageSize]);
 
   const handleSearch = () => {
-    message.info(`搜索关键词: ${searchText}`)
-  }
+    setCurrentPage(1); // 重置到第一页
+    fetchVolunteerList();
+  };
 
   const handleAddVolunteer = () => {
-    setIsAddModalVisible(true)
-  }
+    form.resetFields();
+    setIsAddModalVisible(true);
+  };
 
   const handleQuickAction = () => {
-    message.info("快捷操作")
-  }
+    message.info("快捷操作");
+  };
 
   const handlePrint = () => {
-    message.info("打印志愿者信息")
-  }
+    message.info("打印志愿者信息");
+  };
 
   const handlePageChange = (page: number, pageSize?: number) => {
-    setCurrentPage(page)
-    if (pageSize) setPageSize(pageSize)
-  }
+    setCurrentPage(page);
+    if (pageSize) setPageSize(pageSize);
+  };
+
+  const handleApplicationPageChange = (page: number, pageSize?: number) => {
+    setApplicationCurrentPage(page);
+    if (pageSize) setApplicationPageSize(pageSize);
+  };
 
   const handleEdit = (record: any) => {
-    setCurrentVolunteer(record)
+    setCurrentVolunteer(record);
     editForm.setFieldsValue({
       name: record.name,
-      contact: record.contact,
+      phone: record.phone,
       age: record.age,
-      timePreference: record.timePreference,
-      skills: record.skills,
-    })
-    setIsEditModalVisible(true)
-  }
+      serviceTimePreference: record.serviceTimePreference,
+      expertiseArea: record.expertiseArea,
+    });
+    setIsEditModalVisible(true);
+  };
 
   const handleDelete = (record: any) => {
     Modal.confirm({
@@ -311,39 +305,63 @@ const VolunteerInfo = () => {
       okText: "确认",
       cancelText: "取消",
       onOk: () => {
-        message.success(`已删除志愿者 ${record.name}`)
+        message.success(`已删除志愿者 ${record.name}`);
+        // 这里可以添加删除API调用
+        // 删除成功后重新获取数据
+        fetchVolunteerList();
       },
-    })
-  }
+    });
+  };
 
   const handleViewDetail = (record: any) => {
-    message.info(`查看志愿者 ${record.name} 的详细信息`)
-  }
+    message.info(`查看志愿者申请 ${record.name} 的详细信息`);
+  };
 
-  const handleAddModalOk = () => {
-    form
-      .validateFields()
-      .then((values) => {
-        message.success("志愿者添加成功！")
-        setIsAddModalVisible(false)
-        form.resetFields()
-      })
-      .catch((info) => {
-        console.log("验证失败:", info)
-      })
-  }
+  const handleAddModalOk = async () => {
+    try {
+      const values = await form.validateFields();
+      setLoading(true);
+
+      // 构建请求数据
+      const requestData = {
+        name: values.name,
+        phone: values.phone,
+        age: Number.parseInt(values.age),
+        serviceTimePreference: values.serviceTimePreference,
+        expertiseArea: values.expertiseArea,
+      };
+
+      // 调用API创建志愿者
+      await createVolunteer(requestData);
+
+      message.success("志愿者添加成功！");
+      setIsAddModalVisible(false);
+      form.resetFields();
+
+      // 刷新志愿者列表
+      fetchVolunteerList();
+    } catch (error) {
+      console.error("添加志愿者失败:", error);
+      message.error("添加志愿者失败，请重试！");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleEditModalOk = () => {
     editForm
       .validateFields()
       .then((values) => {
-        message.success(`志愿者 ${currentVolunteer.name} 信息修改成功！`)
-        setIsEditModalVisible(false)
+        message.success(`志愿者 ${currentVolunteer.name} 信息修改成功！`);
+        setIsEditModalVisible(false);
+        // 这里可以添加更新API调用
+        // 更新成功后重新获取数据
+        fetchVolunteerList();
       })
       .catch((info) => {
-        console.log("验证失败:", info)
-      })
-  }
+        console.log("验证失败:", info);
+      });
+  };
 
   return (
     <Row gutter={[16, 16]}>
@@ -367,7 +385,11 @@ const VolunteerInfo = () => {
 
           <div className="search-section">
             <div className="left-actions">
-              <Button type="primary" icon={<PlusOutlined />} onClick={handleAddVolunteer}>
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={handleAddVolunteer}
+              >
                 添加志愿者
               </Button>
               <Input
@@ -376,7 +398,12 @@ const VolunteerInfo = () => {
                 onChange={(e) => setSearchText(e.target.value)}
                 style={{ width: 200, marginLeft: 16 }}
               />
-              <Button type="primary" icon={<SearchOutlined />} onClick={handleSearch} style={{ marginLeft: 8 }}>
+              <Button
+                type="primary"
+                icon={<SearchOutlined />}
+                onClick={handleSearch}
+                style={{ marginLeft: 8 }}
+              >
                 搜索
               </Button>
             </div>
@@ -384,26 +411,34 @@ const VolunteerInfo = () => {
               <Button type="primary" onClick={handleQuickAction}>
                 快捷操作
               </Button>
-              <Button type="primary" icon={<PrinterOutlined />} onClick={handlePrint} style={{ marginLeft: 8 }}>
+              <Button
+                type="primary"
+                icon={<PrinterOutlined />}
+                onClick={handlePrint}
+                style={{ marginLeft: 8 }}
+              >
                 打印
               </Button>
             </div>
           </div>
 
           <div className="table-container">
-            <Table
-              columns={columns}
-              dataSource={data}
-              pagination={false}
-              bordered
-              size="small"
-              scroll={{ x: "max-content" }}
-            />
+            <Spin spinning={loading}>
+              <Table
+                columns={columns}
+                dataSource={volunteerData}
+                pagination={false}
+                bordered
+                size="small"
+                scroll={{ x: "max-content" }}
+                locale={{ emptyText: "暂无志愿者数据" }}
+              />
+            </Spin>
             <div className="pagination-container">
               <Pagination
                 current={currentPage}
                 pageSize={pageSize}
-                total={100}
+                total={total}
                 onChange={handlePageChange}
                 showSizeChanger
                 showQuickJumper
@@ -415,18 +450,22 @@ const VolunteerInfo = () => {
       </Col>
       <Col span={6}>
         <Card className="simple-volunteer-list" title="志愿者申请列表">
-          <Table
-            columns={simpleColumns}
-            dataSource={simpleVolunteerList}
-            pagination={{
-              simple: true,
-              current: currentPage,
-              pageSize: 8,
-              total: simpleVolunteerList.length,
-            }}
-            bordered
-            size="small"
-          />
+          <Spin spinning={applicationLoading}>
+            <Table
+              columns={simpleColumns}
+              dataSource={applicationData}
+              pagination={{
+                simple: true,
+                current: applicationCurrentPage,
+                pageSize: applicationPageSize,
+                total: applicationTotal,
+                onChange: handleApplicationPageChange,
+              }}
+              bordered
+              size="small"
+              locale={{ emptyText: "暂无申请数据" }}
+            />
+          </Spin>
         </Card>
       </Col>
 
@@ -438,13 +477,18 @@ const VolunteerInfo = () => {
         onCancel={() => setIsAddModalVisible(false)}
         okText="确认"
         cancelText="取消"
+        confirmLoading={loading}
       >
         <Form form={form} layout="vertical">
-          <Form.Item name="name" label="姓名" rules={[{ required: true, message: "请输入姓名" }]}>
+          <Form.Item
+            name="name"
+            label="姓名"
+            rules={[{ required: true, message: "请输入姓名" }]}
+          >
             <Input placeholder="请输入姓名" />
           </Form.Item>
           <Form.Item
-            name="contact"
+            name="phone"
             label="联系方式"
             rules={[
               { required: true, message: "请输入联系方式" },
@@ -453,17 +497,25 @@ const VolunteerInfo = () => {
           >
             <Input placeholder="请输入联系方式" />
           </Form.Item>
-          <Form.Item name="age" label="年龄" rules={[{ required: true, message: "请输入年龄" }]}>
+          <Form.Item
+            name="age"
+            label="年龄"
+            rules={[{ required: true, message: "请输入年龄" }]}
+          >
             <Input type="number" placeholder="请输入年龄" />
           </Form.Item>
           <Form.Item
-            name="timePreference"
+            name="serviceTimePreference"
             label="服务时间偏好"
             rules={[{ required: true, message: "请选择服务时间偏好" }]}
           >
             <Input placeholder="请输入服务时间偏好" />
           </Form.Item>
-          <Form.Item name="skills" label="擅长领域" rules={[{ required: true, message: "请输入擅长领域" }]}>
+          <Form.Item
+            name="expertiseArea"
+            label="擅长领域"
+            rules={[{ required: true, message: "请输入擅长领域" }]}
+          >
             <Input placeholder="请输入擅长领域" />
           </Form.Item>
         </Form>
@@ -479,11 +531,15 @@ const VolunteerInfo = () => {
         cancelText="取消"
       >
         <Form form={editForm} layout="vertical">
-          <Form.Item name="name" label="姓名" rules={[{ required: true, message: "请输入姓名" }]}>
+          <Form.Item
+            name="name"
+            label="姓名"
+            rules={[{ required: true, message: "请输入姓名" }]}
+          >
             <Input placeholder="请输入姓名" />
           </Form.Item>
           <Form.Item
-            name="contact"
+            name="phone"
             label="联系方式"
             rules={[
               { required: true, message: "请输入联系方式" },
@@ -492,23 +548,31 @@ const VolunteerInfo = () => {
           >
             <Input placeholder="请输入联系方式" />
           </Form.Item>
-          <Form.Item name="age" label="年龄" rules={[{ required: true, message: "请输入年龄" }]}>
+          <Form.Item
+            name="age"
+            label="年龄"
+            rules={[{ required: true, message: "请输入年龄" }]}
+          >
             <Input type="number" placeholder="请输入年龄" />
           </Form.Item>
           <Form.Item
-            name="timePreference"
+            name="serviceTimePreference"
             label="服务时间偏好"
             rules={[{ required: true, message: "请选择服务时间偏好" }]}
           >
             <Input placeholder="请输入服务时间偏好" />
           </Form.Item>
-          <Form.Item name="skills" label="擅长领域" rules={[{ required: true, message: "请输入擅长领域" }]}>
+          <Form.Item
+            name="expertiseArea"
+            label="擅长领域"
+            rules={[{ required: true, message: "请输入擅长领域" }]}
+          >
             <Input placeholder="请输入擅长领域" />
           </Form.Item>
         </Form>
       </Modal>
     </Row>
-  )
-}
+  );
+};
 
-export default VolunteerInfo
+export default VolunteerInfo;

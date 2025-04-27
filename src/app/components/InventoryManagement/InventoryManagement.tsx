@@ -276,7 +276,7 @@ export default function InventoryManagement() {
       }}
     >
       <div className="inventory-container">
-        <Card title="信息检索" variant="outlined">
+        <Card title="信息检索" className="form-card" variant="outlined" size="small">
           <Form form={form} layout="inline">
             <Space size={"small"}>
               <Form.Item label="绘本编号" name="book_id">
@@ -335,7 +335,7 @@ export default function InventoryManagement() {
               total={total}
               pageSize={pageSize}
               onPageChange={handlePageChange}
-              scroll={{ y: 50 * 12 }}
+              scroll={{ y: "60vh" }}
             />
           </div>
         </div>

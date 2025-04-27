@@ -1,4 +1,4 @@
-import { Card} from "antd"
+import { Card } from "antd"
 import { ArrowUpOutlined, ArrowDownOutlined } from "@ant-design/icons"
 import type { ReactNode } from "react"
 import "./StatisticCard.scss"
@@ -9,13 +9,23 @@ interface StatisticCardProps {
   icon: ReactNode
   iconBg: string
   iconColor: string
-  trend: string | number
-  trendType: "up" | "down"
+  trend?: string | number
+  trendType?: "up" | "down"
+  loading?: boolean
 }
 
-export default function StatisticCard({ title, value, icon, iconBg, iconColor, trend, trendType }: StatisticCardProps) {
+export default function StatisticCard({
+  title,
+  value,
+  icon,
+  iconBg,
+  iconColor,
+  trend,
+  trendType,
+  loading = false,
+}: StatisticCardProps) {
   return (
-    <Card className="statistic-card">
+    <Card className="statistic-card" loading={loading}>
       <div className="statistic-header">
         <div className="icon-wrapper" style={{ backgroundColor: iconBg }}>
           <span className="icon" style={{ color: iconColor }}>
@@ -25,13 +35,14 @@ export default function StatisticCard({ title, value, icon, iconBg, iconColor, t
         <div className="statistic-title">{title}</div>
       </div>
       <div className="statistic-value">{value}</div>
-      <div className="statistic-footer">
-        <span className="label">较上月</span>
-        <span className={`trend ${trendType === "up" ? "up" : "down"}`}>
-          {trendType === "up" ? <ArrowUpOutlined /> : <ArrowDownOutlined />}
-          {trend}
-        </span>
-      </div>
+      {trend !== undefined && trendType !== undefined && (
+        <div className="statistic-footer">
+          <div className={`trend ${trendType}`}>
+            {trendType === "up" ? <ArrowUpOutlined /> : <ArrowDownOutlined />}
+            {trend}
+          </div>
+        </div>
+      )}
     </Card>
   )
 }

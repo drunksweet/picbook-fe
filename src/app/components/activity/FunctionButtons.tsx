@@ -26,7 +26,7 @@ export default function FunctionButtons({
   onFeedback,
 }: FunctionButtonsProps) {
   return (
-    <Card className="section-card">
+    <Card className="btns-card">
       <div className="function-buttons">
         <Button type="primary" className="function-button" onClick={onCreateActivity}>
           <FileTextOutlined />

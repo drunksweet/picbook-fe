@@ -11,7 +11,7 @@ interface BannerProps {
 
 export default function Banner({ title, style }: BannerProps) {
   const defaultStyle : React.CSSProperties = { 
-    minHeight: '50px',
+    height: '4vh',
     background: "white",
     display: 'flex',
     alignItems: 'center'
