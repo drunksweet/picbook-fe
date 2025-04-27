@@ -91,10 +91,10 @@ const BorrowHistoryCard: React.FC<BorrowHistoryCardProps> = ({
           借阅历史记录
         </Title>
         <Tabs defaultActiveKey="1" className="history-tabs" activeKey={activeTab} onChange={onTabChange}>
-          <TabPane tab="待归还记录" key="1"></TabPane>
-          <TabPane tab="已逾期记录" key="2"></TabPane>
-          <TabPane tab="已归还记录" key="3"></TabPane>
-          <TabPane tab="全部记录" key="4"></TabPane>
+          <TabPane tab="待归还记录" key="1" className="tabPane"></TabPane>
+          <TabPane tab="已逾期记录" key="2" className="tabPane"></TabPane>
+          <TabPane tab="已归还记录" key="3" className="tabPane"></TabPane>
+          <TabPane tab="全部记录" key="4" className="tabPane"></TabPane>
         </Tabs>
       </div>
 

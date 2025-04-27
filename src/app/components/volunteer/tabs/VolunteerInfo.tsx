@@ -45,7 +45,7 @@ const VolunteerInfo = () => {
   const [applicationData, setApplicationData] = useState<any[]>([]);
   const [applicationTotal, setApplicationTotal] = useState(0);
   const [applicationCurrentPage, setApplicationCurrentPage] = useState(1);
-  const [applicationPageSize, setApplicationPageSize] = useState(10);
+  const [applicationPageSize, setApplicationPageSize] = useState(6);
 
   // 表格列定义
   const columns = [
@@ -461,6 +461,7 @@ const VolunteerInfo = () => {
                 total: applicationTotal,
                 onChange: handleApplicationPageChange,
               }}
+              scroll={{y: '50vh'}}
               bordered
               size="small"
               locale={{ emptyText: "暂无申请数据" }}

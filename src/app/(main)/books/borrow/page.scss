@@ -3,29 +3,38 @@
   width: 100%;
   overflow-x: hidden;
   overflow-y: hidden;
-  
+
   .page-content {
     margin-top: 1rem;
     width: 100%;
     overflow-x: hidden;
   }
-  
+
+
+
   // 响应式布局调整
   @media (max-width: 1200px) {
     .page-content {
       padding: 8px;
     }
   }
-  
+
   @media (max-width: 768px) {
     .ant-row {
       margin-right: 0 !important;
       margin-left: 0 !important;
     }
-    
+
     .ant-col {
       padding-right: 0 !important;
       padding-left: 0 !important;
     }
+  }
+}
+
+.ant-tabs-nav-wrap {
+  max-width: 25vw;
+  .ant-tabs-nav-list {
+    overflow-x: auto;
   }
 }
