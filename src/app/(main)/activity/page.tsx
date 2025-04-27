@@ -95,7 +95,7 @@ const ActivityManagementPage = () => {
     },
     {
       title: "活动参与率",
-      value: `${(statisticsData.activity_participation_rate * 100).toFixed(2)}%`,
+      value: `${(statisticsData.activity_participation_rate).toFixed(2)}%`,
       icon: <BarChartOutlined />,
       iconBg: "#F6FFED",
       iconColor: "#52C41A",
