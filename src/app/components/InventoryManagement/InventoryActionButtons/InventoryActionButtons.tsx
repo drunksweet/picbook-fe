@@ -9,7 +9,7 @@ import {
   PrinterOutlined,
   ThunderboltOutlined,
 } from "@ant-design/icons";
-import Spacer from "../../common/spacer/spacer";
+import Spacer from "@components/common/spacer/spacer";
 import axiosInstance from "src/api/axios";
 import "./InventoryActionButtons.scss";
 
