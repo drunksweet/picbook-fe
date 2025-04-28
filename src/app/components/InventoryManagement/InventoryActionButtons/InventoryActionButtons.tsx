@@ -9,7 +9,7 @@ import {
   PrinterOutlined,
   ThunderboltOutlined,
 } from "@ant-design/icons";
-import Spacer from "@components/common/spacer/spacer";
+// import Spacer from "@components/common/spacer/spacer";
 import axiosInstance from "src/api/axios";
 import "./InventoryActionButtons.scss";
 
@@ -79,14 +79,18 @@ export default function InventoryActionButtons({
         name: formValues.name,
         publisher: formValues.publisher,
         quantity_added: formValues.quantity_added,
-      }
+      };
 
       // 发送请求添加库存记录
-      const response = await axiosInstance.post("/v1/book/stock/add", requestBody, {
-        headers: {
-          Authorization: authToken,
-        },
-      });
+      const response = await axiosInstance.post(
+        "/v1/book/stock/add",
+        requestBody,
+        {
+          headers: {
+            Authorization: authToken,
+          },
+        }
+      );
 
       if (response.data.code === 200) {
         message.success("添加库存记录成功");
@@ -148,7 +152,7 @@ export default function InventoryActionButtons({
         >
           导出库存报表
         </Button>
-        <Spacer />
+        <div style={{ flex: 1 }}></div>
         <Button
           type="primary"
           icon={<ThunderboltOutlined />}
