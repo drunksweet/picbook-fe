@@ -235,7 +235,7 @@ const ServiceRecords = () => {
       key: "action",
       width: 80,
       align: "center" as const,
-      render: (_, record) => (
+      render: (_:any, record:any) => (
         <Button type="link" style={{ color: "#F59A23", padding: "0" }} onClick={() => handleViewDetail(record)}>
           查看
         </Button>

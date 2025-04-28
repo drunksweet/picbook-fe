@@ -20,7 +20,7 @@ export default function SignupManagementDrawer({ visible, onClose, signupData }:
     {
       title: "操作",
       key: "action",
-      render: (_, record) => (
+      render: (_:any, record: any) => (
         <Space size="middle">
           <Button type="link" size="small" onClick={() => message.success(`已确认${record.name}的报名`)}>
             确认

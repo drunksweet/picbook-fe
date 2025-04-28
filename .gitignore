@@ -43,3 +43,5 @@ next-env.d.ts
 
 # devlog
 /devlog.md
+
+.vercel

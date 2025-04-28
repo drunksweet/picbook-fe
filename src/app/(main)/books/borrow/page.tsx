@@ -198,7 +198,9 @@ const BookBorrowPage = () => {
 
   // 处理重置
   const handleReset = () => {
-    searchForm.resetFields()
+    searchForm.resetFields() // 重置表单字段
+    setSearchCurrentPage(1) // 重置页码到第一页
+    handleSearch(1, searchPageSize) // 使用重置后的表单值执行搜索
   }
 
   // 处理统计周期变化

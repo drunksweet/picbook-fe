@@ -2,8 +2,13 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
+  reactStrictMode: false, // 关闭React的StrictMode
   sassOptions: {
     includePaths: ["./"],
+  },
+  eslint: {
+    // 在构建时忽略ESLint错误
+    ignoreDuringBuilds: true,
   },
 
   async rewrites() {

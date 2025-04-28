@@ -1,5 +1,5 @@
 import { Modal } from "antd"
-import type { ActivityData } from "./ActivityCard"
+import type { ActivityData } from "./ActivityCard/ActivityCard"
 
 interface CancelActivityModalProps {
   visible: boolean
